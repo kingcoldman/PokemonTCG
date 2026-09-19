@@ -14,6 +14,7 @@
       margin: 0;
       padding: 20px;
       user-select: none;
+      overflow-x: hidden;
     }
 
     h1 {
@@ -49,47 +50,68 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* Interactive Pack Swipe Area */
-    #pack-container {
-      position: relative;
-      width: 220px;
-      margin: 20px auto;
+    /* --- PACK DISPLAY & ZOOM ANIMATION --- */
+    .pack-stage {
+      width: 260px;
+      height: 440px;
+      margin: 10px auto;
+      perspective: 800px;
     }
 
-    .pack-wrapper {
+    .pack-frame {
       position: relative;
       width: 100%;
-      height: 340px;
-      cursor: pointer;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+      transform-origin: center 20%;
+    }
+
+    /* Zoom mode when opening */
+    .pack-frame.zoomed {
+      transform: scale(1.8) translateY(80px);
     }
 
     .pack-art {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.7));
+      filter: drop-shadow(0 12px 20px rgba(0,0,0,0.8));
     }
 
-    .pack-top-strip {
+    /* Tear Strip Overlay */
+    .tear-guide {
       position: absolute;
-      top: 10px;
+      top: 55px;
       left: 10%;
       width: 80%;
       height: 35px;
-      background: rgba(255, 203, 5, 0.4);
       border: 2px dashed #ffcb05;
-      border-radius: 6px;
+      background: rgba(255, 203, 5, 0.25);
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: bold;
-      color: #fff;
-      text-shadow: 1px 1px #000;
-      pointer-events: none;
+      color: #ffffff;
+      text-shadow: 1px 1px 2px #000;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      cursor: pointer;
+      touch-action: none;
     }
 
-    /* Stack Reveal Mechanics with Slide to Side */
+    .pack-frame.zoomed .tear-guide {
+      opacity: 1;
+      animation: pulse 1.5s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { border-color: #ffcb05; background: rgba(255, 203, 5, 0.2); }
+      to { border-color: #ffffff; background: rgba(255, 255, 255, 0.4); }
+    }
+
+    /* --- CARDS REVEAL --- */
     #reveal-area {
       display: none;
       flex-direction: column;
@@ -123,25 +145,24 @@
       object-fit: cover;
     }
 
-    /* Animation for sliding to the side */
     .card-item.slide-out {
-      transform: translateX(120%) rotate(15deg);
+      transform: translateX(130%) rotate(20deg);
       opacity: 0;
       pointer-events: none;
     }
 
-    /* Grid layout for Binder / Dex */
+    /* --- BINDER & DEX GRID --- */
     .card-grid {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 15px;
+      gap: 12px;
       margin-top: 20px;
     }
 
     .card {
-      width: 140px;
-      height: 196px;
+      width: 130px;
+      height: 182px;
       background-color: #2a2a38;
       border-radius: 8px;
       overflow: hidden;
@@ -167,22 +188,25 @@
     }
 
     .status {
-      font-size: 16px;
+      font-size: 15px;
       color: #00d26a;
       margin-top: 10px;
     }
 
-    .next-btn {
+    .action-btn {
       background-color: #ffcb05;
       color: #121218;
       border: none;
-      padding: 10px 25px;
+      padding: 12px 28px;
       font-size: 16px;
       font-weight: bold;
       border-radius: 8px;
       cursor: pointer;
       margin-top: 10px;
+      transition: transform 0.1s;
     }
+
+    .action-btn:active { transform: scale(0.96); }
   </style>
 </head>
 <body>
@@ -195,34 +219,36 @@
     <button class="nav-btn" onclick="switchTab('dex-tab')">Card Dex (151)</button>
   </nav>
 
-  <div id="status" class="status">Loading 151 set data...</div>
+  <div id="status" class="status">Loading Pokémon 151 cards...</div>
 
-  <!-- TAB 1: OPEN PACK -->
+  <!-- TAB 1: PACK SIMULATOR -->
   <div id="pack-tab" class="tab-content active">
     <div id="pack-container">
-      <div id="pack-wrapper" class="pack-wrapper">
-        <img class="pack-art" src="https://images.pokemontcg.io/sv3pt5/symbol.png" alt="151 Pack" id="pack-img">
-        <div class="pack-top-strip">Swipe or Click to Rip!</div>
+      <div class="pack-stage">
+        <div id="pack-frame" class="pack-frame">
+          <img class="pack-art" src="https://images.pokemontcg.io/sv3pt5/symbol.png" alt="151 Pack" onerror="this.src='https://assets.pokemon.com/assets/cms2/img/cards/web/SV3PT5/SV3PT5_EN_1.png'">
+          <div id="tear-strip" class="tear-guide">Swipe Across Line ➔</div>
+        </div>
       </div>
-      <button class="next-btn" onclick="tearPack()" style="margin-top: 15px;">Tap to Rip Pack</button>
+      <button id="zoom-btn" class="action-btn" onclick="prepareToOpen()">Open Pack</button>
     </div>
 
     <div id="reveal-area">
       <div id="card-stack" class="card-stack"></div>
-      <p id="card-counter-text">Tap the card to slide it away!</p>
-      <button id="reset-pack-btn" class="next-btn" onclick="resetPackView()" style="display:none;">Open Another Pack</button>
+      <p id="card-counter-text">Tap top card to slide it away!</p>
+      <button id="reset-pack-btn" class="action-btn" onclick="resetPackView()" style="display:none;">Open Another Pack</button>
     </div>
   </div>
 
-  <!-- TAB 2: BINDER -->
+  <!-- TAB 2: MY BINDER -->
   <div id="binder-tab" class="tab-content">
-    <h2>My Collected Cards</h2>
+    <h2>My Collection</h2>
     <div id="binder-grid" class="card-grid"></div>
   </div>
 
   <!-- TAB 3: CARD DEX -->
   <div id="dex-tab" class="tab-content">
-    <h2>151 Master Set Dex (0/207)</h2>
+    <h2>151 Master Set (0/207)</h2>
     <div id="dex-grid" class="card-grid"></div>
   </div>
 
@@ -236,7 +262,6 @@
     let cardsRemaining = 10;
 
     let startX = 0;
-    let startY = 0;
 
     let cardPool = {
       common: [],
@@ -282,15 +307,53 @@
           }
         });
 
-        document.getElementById('status').innerText = "151 Set Ready! Swipe or click the pack button to open.";
+        document.getElementById('status').innerText = "151 Set Ready! Click 'Open Pack' to begin.";
         isReady = true;
-        setupSwipeEvents();
+        setupTearEvents();
         renderDex();
         renderBinder();
       } catch (err) {
-        document.getElementById('status').innerText = "Error loading set. Please refresh.";
+        document.getElementById('status').innerText = "Error loading set data. Please refresh.";
         console.error(err);
       }
+    }
+
+    function prepareToOpen() {
+      if (!isReady) {
+        alert("Cards are loading, please wait a moment!");
+        return;
+      }
+      document.getElementById('pack-frame').classList.add('zoomed');
+      document.getElementById('zoom-btn').style.display = 'none';
+      document.getElementById('status').innerText = "Swipe along the dotted line to rip open!";
+    }
+
+    function setupTearEvents() {
+      const tearStrip = document.getElementById('tear-strip');
+
+      // Mouse Drag Events
+      tearStrip.addEventListener('mousedown', (e) => { startX = e.clientX; });
+      tearStrip.addEventListener('mouseup', (e) => { checkDrag(e.clientX); });
+
+      // Touch Events for Mobile / Tablet
+      tearStrip.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
+      tearStrip.addEventListener('touchend', (e) => { checkDrag(e.changedTouches[0].clientX); });
+
+      // Click backup so it never gets stuck
+      tearStrip.addEventListener('click', () => { ripPack(); });
+    }
+
+    function checkDrag(endX) {
+      if (Math.abs(endX - startX) > 20) {
+        ripPack();
+      }
+    }
+
+    function ripPack() {
+      document.getElementById('pack-container').style.display = 'none';
+      document.getElementById('reveal-area').style.display = 'flex';
+      generatePack();
+      renderPackStack();
     }
 
     function getRandomCard(pool) {
@@ -301,69 +364,22 @@
     function rollHitSlot() {
       const roll = Math.random() * 100;
       if (roll < 1.94) return getRandomCard(cardPool.hyperRare);
-      if (roll < (1.94 + 3.11)) return getRandomCard(cardPool.specialIllustrationRare);
-      if (roll < (1.94 + 3.11 + 6.44)) return getRandomCard(cardPool.ultraRare);
-      if (roll < (1.94 + 3.11 + 6.44 + 8.50)) return getRandomCard(cardPool.illustrationRare);
-      if (roll < (1.94 + 3.11 + 6.44 + 8.50 + 13.28)) return getRandomCard(cardPool.doubleRare);
+      if (roll < 5.05) return getRandomCard(cardPool.specialIllustrationRare);
+      if (roll < 11.49) return getRandomCard(cardPool.ultraRare);
+      if (roll < 19.99) return getRandomCard(cardPool.illustrationRare);
+      if (roll < 33.27) return getRandomCard(cardPool.doubleRare);
       return getRandomCard(cardPool.rare);
-    }
-
-    function setupSwipeEvents() {
-      const pack = document.getElementById('pack-wrapper');
-
-      pack.addEventListener('mousedown', (e) => { startX = e.clientX; startY = e.clientY; });
-      pack.addEventListener('mouseup', (e) => { checkSwipe(e.clientX, e.clientY); });
-
-      pack.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-      });
-      pack.addEventListener('touchend', (e) => {
-        checkSwipe(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-      });
-    }
-
-    function checkSwipe(endX, endY) {
-      const diffX = Math.abs(endX - startX);
-      const diffY = Math.abs(endY - startY);
-
-      if (diffX > 20 || diffY > 20) {
-        tearPack();
-      }
-    }
-
-    function tearPack() {
-      if (!isReady) {
-        alert("Cards are still loading, give it just a few seconds!");
-        return;
-      }
-
-      document.getElementById('pack-container').style.display = 'none';
-      document.getElementById('reveal-area').style.display = 'flex';
-
-      generatePack();
-      renderPackStack();
     }
 
     function generatePack() {
       currentPack = [];
 
-      // Slots 1-4: Common Cards
       for (let i = 0; i < 4; i++) currentPack.push(getRandomCard(cardPool.common));
-      
-      // Slots 5-7: Uncommon Cards
       for (let i = 0; i < 3; i++) currentPack.push(getRandomCard(cardPool.uncommon));
-
-      // Slot 8: Basic Energy
       currentPack.push(getRandomCard(cardPool.energy));
-
-      // Slot 9: Reverse Holo Slot
       currentPack.push(getRandomCard([...cardPool.common, ...cardPool.uncommon, ...cardPool.rare]));
-
-      // Slot 10: Hit Slot
       currentPack.push(rollHitSlot());
 
-      // Save to local collection
       currentPack.forEach(card => {
         collection[card.id] = (collection[card.id] || 0) + 1;
       });
@@ -380,7 +396,6 @@
       document.getElementById('card-counter-text').innerText = `Cards remaining: ${cardsRemaining}`;
       document.getElementById('reset-pack-btn').style.display = 'none';
 
-      // Build stack from last card to first card so card 1 is on top
       for (let i = currentPack.length - 1; i >= 0; i--) {
         const card = currentPack[i];
         const cardDiv = document.createElement('div');
@@ -407,8 +422,11 @@
     }
 
     function resetPackView() {
+      document.getElementById('pack-frame').classList.remove('zoomed');
+      document.getElementById('zoom-btn').style.display = 'inline-block';
       document.getElementById('reveal-area').style.display = 'none';
       document.getElementById('pack-container').style.display = 'block';
+      document.getElementById('status').innerText = "151 Set Ready! Click 'Open Pack' to begin.";
     }
 
     function renderBinder() {
@@ -444,7 +462,7 @@
         dexGrid.appendChild(cardDiv);
       });
 
-      document.querySelector('#dex-tab h2').innerText = `151 Master Set Dex (${totalOwned}/${cardDatabase.length})`;
+      document.querySelector('#dex-tab h2').innerText = `151 Master Set (${totalOwned}/${cardDatabase.length})`;
     }
 
     function switchTab(tabId) {
