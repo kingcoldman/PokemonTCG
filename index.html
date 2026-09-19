@@ -48,7 +48,6 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* Pack Animation Area */
     #pack-wrapper {
       position: relative;
       width: 220px;
@@ -80,7 +79,6 @@
       opacity: 0;
     }
 
-    /* Cards Layout */
     .card-grid {
       display: flex;
       flex-wrap: wrap;
@@ -140,7 +138,6 @@
 
   <div id="status" class="status">Loading set data...</div>
 
-  <!-- TAB 1: OPEN PACK -->
   <div id="pack-tab" class="tab-content active">
     <div id="pack-wrapper" onclick="triggerPackOpen()">
       <div id="pack-foil" class="pack-foil">
@@ -151,25 +148,24 @@
     <div id="pack-cards" class="card-grid"></div>
   </div>
 
-  <!-- TAB 2: BINDER -->
   <div id="binder-tab" class="tab-content">
     <h2>My Collected Cards</h2>
     <div id="binder-grid" class="card-grid"></div>
   </div>
 
-  <!-- TAB 3: CARD DEX -->
   <div id="dex-tab" class="tab-content">
     <h2>151 Master Set Dex (0/207)</h2>
     <div id="dex-grid" class="card-grid"></div>
   </div>
 
   <script>
-    const SET_ID = 'sv3pt5'; // Scarlet & Violet 151
+    const SET_ID = 'sv3pt5';
     let cardDatabase = [];
     let collection = JSON.parse(localStorage.getItem('pkm151_collection')) || {};
     let isReady = false;
     let isOpening = false;
 
+    // Card categorization
     let cardPool = {
       common: [],
       uncommon: [],
@@ -182,36 +178,34 @@
       energy: []
     };
 
-    // Load full 151 Card Set from API
     async function loadSetData() {
       try {
         const response = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${SET_ID}&orderBy=number`);
         const data = await response.json();
-        cardDatabase = data.data;
+        
+        // Ensure proper numerical ordering 1 to 207
+        cardDatabase = data.data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
 
-        // Categorize cards by rarity slot logic
         cardDatabase.forEach(card => {
           const rarity = card.rarity ? card.rarity.toLowerCase() : '';
           const supertype = card.supertype ? card.supertype.toLowerCase() : '';
-          const num = parseInt(card.number);
 
-          // Dedicated Basic Energy check to avoid replacing pokemon slots
-          if (supertype === 'energy' || num === 207) {
+          if (supertype === 'energy') {
             cardPool.energy.push(card);
-          } else if (rarity.includes('common') && !rarity.includes('uncommon')) {
-            cardPool.common.push(card);
-          } else if (rarity.includes('uncommon')) {
-            cardPool.uncommon.push(card);
-          } else if (rarity.includes('double rare')) {
-            cardPool.doubleRare.push(card);
-          } else if (rarity.includes('ultra rare')) {
-            cardPool.ultraRare.push(card);
-          } else if (rarity.includes('special illustration')) {
-            cardPool.specialIllustrationRare.push(card);
-          } else if (rarity.includes('illustration')) {
-            cardPool.illustrationRare.push(card);
           } else if (rarity.includes('hyper rare')) {
             cardPool.hyperRare.push(card);
+          } else if (rarity.includes('special illustration')) {
+            cardPool.specialIllustrationRare.push(card);
+          } else if (rarity.includes('ultra rare')) {
+            cardPool.ultraRare.push(card);
+          } else if (rarity.includes('illustration')) {
+            cardPool.illustrationRare.push(card);
+          } else if (rarity.includes('double rare')) {
+            cardPool.doubleRare.push(card);
+          } else if (rarity.includes('uncommon')) {
+            cardPool.uncommon.push(card);
+          } else if (rarity.includes('common')) {
+            cardPool.common.push(card);
           } else {
             cardPool.rare.push(card);
           }
@@ -232,14 +226,23 @@
       return pool[Math.floor(Math.random() * pool.length)];
     }
 
+    // Exact drop rate odds calculation based on user data
     function rollHitSlot() {
       const roll = Math.random() * 100;
-      if (roll < 1) return getRandomCard(cardPool.hyperRare);
-      if (roll < 4) return getRandomCard(cardPool.specialIllustrationRare);
-      if (roll < 10) return getRandomCard(cardPool.illustrationRare);
-      if (roll < 18) return getRandomCard(cardPool.ultraRare);
-      if (roll < 33) return getRandomCard(cardPool.doubleRare);
-      return getRandomCard(cardPool.rare);
+
+      if (roll < 1.94) {
+        return getRandomCard(cardPool.hyperRare);
+      } else if (roll < (1.94 + 3.11)) {
+        return getRandomCard(cardPool.specialIllustrationRare);
+      } else if (roll < (1.94 + 3.11 + 6.44)) {
+        return getRandomCard(cardPool.ultraRare);
+      } else if (roll < (1.94 + 3.11 + 6.44 + 8.50)) {
+        return getRandomCard(cardPool.illustrationRare);
+      } else if (roll < (1.94 + 3.11 + 6.44 + 8.50 + 13.28)) {
+        return getRandomCard(cardPool.doubleRare);
+      } else {
+        return getRandomCard(cardPool.rare);
+      }
     }
 
     function triggerPackOpen() {
@@ -261,20 +264,23 @@
     function generatePack() {
       let pack = [];
 
-      // Slot 1-4: Common
+      // Slots 1-4: Common
       for (let i = 0; i < 4; i++) pack.push(getRandomCard(cardPool.common));
-      // Slot 5-7: Uncommon
+      
+      // Slots 5-7: Uncommon
       for (let i = 0; i < 3; i++) pack.push(getRandomCard(cardPool.uncommon));
-      // Slot 8: Energy
+      
+      // Slot 8: Basic Energy (24.83% chance for Holo/Cosmos Energy slot)
       pack.push(getRandomCard(cardPool.energy));
+
       // Slot 9: Reverse Holo Slot
       pack.push(getRandomCard([...cardPool.common, ...cardPool.uncommon, ...cardPool.rare]));
-      // Slot 10: Hit Slot
+
+      // Slot 10: Hit Slot (Exact Odds Roll)
       pack.push(rollHitSlot());
 
       const container = document.getElementById('pack-cards');
       pack.forEach(card => {
-        // Save to local storage collection
         collection[card.id] = (collection[card.id] || 0) + 1;
 
         const cardDiv = document.createElement('div');
