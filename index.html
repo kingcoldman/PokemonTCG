@@ -50,10 +50,10 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* --- PACK DISPLAY & ZOOM ANIMATION --- */
+    /* --- PACK DISPLAY & WRAPPER --- */
     .pack-stage {
-      width: 260px;
-      height: 440px;
+      width: 240px;
+      height: 400px;
       margin: 10px auto;
       perspective: 800px;
     }
@@ -62,52 +62,93 @@
       position: relative;
       width: 100%;
       height: 100%;
-      transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+      transition: transform 0.5s ease;
       transform-origin: center 20%;
     }
 
     .pack-frame.zoomed {
-      transform: scale(1.8) translateY(80px);
+      transform: scale(1.5) translateY(40px);
     }
 
-    .pack-art {
+    /* Custom 151 Foil Wrapper Design */
+    .booster-pack {
       width: 100%;
       height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 12px 20px rgba(0,0,0,0.8));
-      border-radius: 8px;
+      background: linear-gradient(135deg, #111 0%, #2a2a38 25%, #1a1a24 50%, #2a2a38 75%, #111 100%);
+      border: 3px solid #ffcb05;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.8), inset 0 0 15px rgba(255,203,5,0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 10px;
+      position: relative;
+      overflow: hidden;
     }
 
+    .pack-crimp-top, .pack-crimp-bottom {
+      width: 100%;
+      height: 15px;
+      background: repeating-linear-gradient(90deg, #333, #333 4px, #555 4px, #555 8px);
+      border-radius: 4px;
+    }
+
+    .pack-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #ffcb05;
+      text-shadow: 3px 3px 0px #3b4cca, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+      letter-spacing: 1px;
+    }
+
+    .pack-subtitle {
+      font-size: 14px;
+      font-weight: bold;
+      color: #ffffff;
+      background: #3b4cca;
+      padding: 4px 12px;
+      border-radius: 12px;
+      margin-top: 5px;
+    }
+
+    .pack-mew-symbol {
+      font-size: 60px;
+      margin: 20px 0;
+      filter: drop-shadow(0 0 10px #ffcb05);
+    }
+
+    /* Tear Guide Overlay */
     .tear-guide {
       position: absolute;
-      top: 55px;
-      left: 10%;
-      width: 80%;
-      height: 35px;
+      top: 45px;
+      left: 5%;
+      width: 90%;
+      height: 40px;
       border: 2px dashed #ffcb05;
-      background: rgba(255, 203, 5, 0.25);
+      background: rgba(255, 203, 5, 0.3);
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: bold;
       color: #ffffff;
       text-shadow: 1px 1px 2px #000;
       opacity: 0;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.3s ease;
       cursor: pointer;
-      touch-action: none;
+      z-index: 10;
     }
 
     .pack-frame.zoomed .tear-guide {
       opacity: 1;
-      animation: pulse 1.5s infinite alternate;
+      animation: pulse 1.2s infinite alternate;
     }
 
     @keyframes pulse {
       from { border-color: #ffcb05; background: rgba(255, 203, 5, 0.2); }
-      to { border-color: #ffffff; background: rgba(255, 255, 255, 0.4); }
+      to { border-color: #ffffff; background: rgba(255, 255, 255, 0.5); }
     }
 
     /* --- CARDS REVEAL --- */
@@ -150,7 +191,7 @@
       pointer-events: none;
     }
 
-    /* --- 4x4 BINDER GRID STYLING --- */
+    /* --- 4x4 BINDER GRID --- */
     .binder-container {
       max-width: 680px;
       margin: 0 auto;
@@ -178,7 +219,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: border-color 0.2s, background-color 0.2s;
     }
 
     .binder-slot.drag-over {
@@ -201,7 +241,6 @@
       pointer-events: none;
     }
 
-    /* Unplaced Cards Area */
     .tray-area {
       margin-top: 25px;
       background: #2a2a38;
@@ -228,15 +267,8 @@
       transition: transform 0.2s;
     }
 
-    .tray-card:hover {
-      transform: scale(1.05);
-    }
-
-    .tray-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .tray-card:hover { transform: scale(1.05); }
+    .tray-card img { width: 100%; height: 100%; object-fit: cover; }
 
     /* --- DEX GRID --- */
     .card-grid {
@@ -299,11 +331,21 @@
     <div id="pack-container">
       <div class="pack-stage">
         <div id="pack-frame" class="pack-frame">
-          <img class="pack-art" id="pack-img" src="https://images.pokemontcg.io/sv3pt5/151_hires.png" alt="151 Mew Pack Art" onerror="this.src='https://assets.pokemon.com/assets/cms2/img/cards/web/SV3PT5/SV3PT5_EN_151.png';">
-          <div id="tear-strip" class="tear-guide">Swipe Across Line ➔</div>
+          <div class="booster-pack">
+            <div class="pack-crimp-top"></div>
+            <div>
+              <div class="pack-title">POKÉMON</div>
+              <div class="pack-subtitle">SCARLET & VIOLET 151</div>
+            </div>
+            <div class="pack-mew-symbol">✨🔮✨</div>
+            <div style="font-size: 12px; font-weight: bold; color: #ffcb05;">10 TRADING CARDS</div>
+            <div class="pack-crimp-bottom"></div>
+          </div>
+          <div id="tear-strip" class="tear-guide" onclick="ripPack()">CLICK OR SWIPE TO RIP OPEN!</div>
         </div>
       </div>
       <button id="zoom-btn" class="action-btn" onclick="prepareToOpen()">Open Pack</button>
+      <button id="rip-now-btn" class="action-btn" onclick="ripPack()" style="display:none; background-color: #00d26a; color:#fff;">Rip Pack Open!</button>
     </div>
 
     <div id="reveal-area">
@@ -316,7 +358,7 @@
   <!-- TAB 2: 4x4 CUSTOM BINDER -->
   <div id="binder-tab" class="tab-content">
     <h2>4x4 Interactive Binder</h2>
-    <p style="font-size: 14px; color: #aaa;">Drag and drop cards into any slot you like (or tap an unbound card)!</p>
+    <p style="font-size: 14px; color: #aaa;">Drag & drop cards into slots, or click an unbound card below!</p>
     
     <div class="binder-container">
       <div id="binder-grid" class="binder-4x4"></div>
@@ -358,17 +400,9 @@
         const response = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${SET_ID}&orderBy=number`);
         const data = await response.json();
         
-        if (!data || !data.data) {
-          throw new Error("API response error");
-        }
+        if (!data || !data.data) throw new Error("API load failed");
 
         cardDatabase = data.data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
-
-        // Use Mew card as official Mew pack art placeholder
-        const mewCard = cardDatabase.find(c => c.name.toLowerCase().includes('mew'));
-        if (mewCard && mewCard.images && mewCard.images.large) {
-          document.getElementById('pack-img').src = mewCard.images.large;
-        }
 
         cardDatabase.forEach(card => {
           const rarity = card.rarity ? card.rarity.toLowerCase() : '';
@@ -391,19 +425,20 @@
         renderDex();
         renderBinder();
       } catch (err) {
-        document.getElementById('status').innerText = "Error loading set data. Please refresh page.";
+        document.getElementById('status').innerText = "Error loading set data. Please refresh.";
         console.error(err);
       }
     }
 
     function prepareToOpen() {
       if (!isReady) {
-        alert("Cards are loading, please wait a moment!");
+        alert("Cards are still loading, please wait a moment!");
         return;
       }
       document.getElementById('pack-frame').classList.add('zoomed');
       document.getElementById('zoom-btn').style.display = 'none';
-      document.getElementById('status').innerText = "Swipe along the dotted line to rip open!";
+      document.getElementById('rip-now-btn').style.display = 'inline-block';
+      document.getElementById('status').innerText = "Click the dotted line or green button to rip open!";
     }
 
     function setupTearEvents() {
@@ -412,11 +447,10 @@
       tearStrip.addEventListener('mouseup', (e) => { checkDrag(e.clientX); });
       tearStrip.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
       tearStrip.addEventListener('touchend', (e) => { checkDrag(e.changedTouches[0].clientX); });
-      tearStrip.addEventListener('click', () => { ripPack(); });
     }
 
     function checkDrag(endX) {
-      if (Math.abs(endX - startX) > 20) ripPack();
+      if (Math.abs(endX - startX) > 15) ripPack();
     }
 
     function ripPack() {
@@ -500,6 +534,7 @@
     function resetPackView() {
       document.getElementById('pack-frame').classList.remove('zoomed');
       document.getElementById('zoom-btn').style.display = 'inline-block';
+      document.getElementById('rip-now-btn').style.display = 'none';
       document.getElementById('reveal-area').style.display = 'none';
       document.getElementById('pack-container').style.display = 'block';
       document.getElementById('status').innerText = "151 Set Ready! Click 'Open Pack' to begin.";
