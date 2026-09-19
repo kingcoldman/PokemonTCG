@@ -52,44 +52,42 @@
     /* Interactive Pack Swipe Area */
     #pack-container {
       position: relative;
-      width: 240px;
-      height: 360px;
+      width: 230px;
+      height: 380px;
       margin: 30px auto;
       perspective: 1000px;
     }
 
-    .pack-foil {
+    .pack-wrapper {
+      position: relative;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      border: 3px solid #ffcb05;
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.7);
-      position: relative;
-      overflow: hidden;
       cursor: grab;
     }
 
-    .pack-foil h2 { color: #ffcb05; margin: 0; font-size: 32px; text-shadow: 2px 2px #000; }
-    .pack-foil p { color: #fff; margin-top: 10px; font-weight: bold; }
+    .pack-art {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.7));
+    }
 
     .pack-top-strip {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 60px;
-      background: rgba(255, 203, 5, 0.3);
-      border-bottom: 2px dashed #ffcb05;
+      top: 15px;
+      left: 10%;
+      width: 80%;
+      height: 40px;
+      background: rgba(255, 203, 5, 0.4);
+      border: 2px dashed #ffcb05;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 11px;
+      font-weight: bold;
       color: #fff;
+      text-shadow: 1px 1px #000;
       pointer-events: none;
     }
 
@@ -204,10 +202,9 @@
   <!-- TAB 1: OPEN PACK -->
   <div id="pack-tab" class="tab-content active">
     <div id="pack-container">
-      <div id="pack-foil" class="pack-foil">
-        <div class="pack-top-strip">Swipe across top to tear</div>
-        <h2>151</h2>
-        <p>BOOSTER PACK</p>
+      <div id="pack-wrapper" class="pack-wrapper">
+        <img class="pack-art" src="https://www.pokemoncenter.com/images/DAMRoot/High/10000/P8976_699-85322_02.jpg" alt="151 Booster Pack">
+        <div class="pack-top-strip">Swipe top to rip!</div>
       </div>
     </div>
 
@@ -313,16 +310,16 @@
     }
 
     function setupSwipeEvents() {
-      const foil = document.getElementById('pack-foil');
+      const pack = document.getElementById('pack-wrapper');
 
-      foil.addEventListener('mousedown', (e) => { startX = e.clientX; startY = e.clientY; });
-      foil.addEventListener('mouseup', (e) => { checkSwipe(e.clientX, e.clientY); });
+      pack.addEventListener('mousedown', (e) => { startX = e.clientX; startY = e.clientY; });
+      pack.addEventListener('mouseup', (e) => { checkSwipe(e.clientX, e.clientY); });
 
-      foil.addEventListener('touchstart', (e) => {
+      pack.addEventListener('touchstart', (e) => {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
       });
-      foil.addEventListener('touchend', (e) => {
+      pack.addEventListener('touchend', (e) => {
         checkSwipe(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
       });
     }
@@ -331,7 +328,7 @@
       const diffX = Math.abs(endX - startX);
       const diffY = Math.abs(endY - startY);
 
-      if (diffX > 50 || diffY > 50) {
+      if (diffX > 40 || diffY > 40) {
         tearPack();
       }
     }
