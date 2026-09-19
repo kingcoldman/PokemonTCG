@@ -13,6 +13,7 @@
       text-align: center;
       margin: 0;
       padding: 20px;
+      user-select: none;
     }
 
     h1 {
@@ -48,12 +49,12 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    #pack-wrapper {
+    /* Interactive Pack Swipe Area */
+    #pack-container {
       position: relative;
-      width: 220px;
-      height: 340px;
-      margin: 20px auto;
-      cursor: pointer;
+      width: 240px;
+      height: 360px;
+      margin: 30px auto;
       perspective: 1000px;
     }
 
@@ -68,17 +69,96 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 10px 25px rgba(0,0,0,0.7);
-      transition: transform 0.6s ease-in-out, opacity 0.5s ease;
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
     }
 
-    .pack-foil h2 { color: #ffcb05; margin: 0; font-size: 28px; }
-    .pack-foil p { color: #fff; margin-top: 5px; }
+    .pack-foil h2 { color: #ffcb05; margin: 0; font-size: 32px; text-shadow: 2px 2px #000; }
+    .pack-foil p { color: #fff; margin-top: 10px; font-weight: bold; }
 
-    .pack-foil.opening {
-      transform: translateY(-200px) rotateX(40deg);
-      opacity: 0;
+    .pack-top-strip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background: rgba(255, 203, 5, 0.3);
+      border-bottom: 2px dashed #ffcb05;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #fff;
+      pointer-events: none;
     }
 
+    /* Single Card Reveal Mechanics */
+    #reveal-area {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .card-flipper {
+      width: 220px;
+      height: 308px;
+      perspective: 1000px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+
+    .card-flipper.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+
+    .card-back {
+      background: #1e1e2d;
+      border: 3px solid #ffcb05;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-back::after {
+      content: 'Pokémon';
+      color: #ffcb05;
+      font-weight: bold;
+      font-size: 24px;
+      text-shadow: 2px 2px #3b4cca;
+    }
+
+    .card-front {
+      transform: rotateY(180deg);
+    }
+
+    .card-front img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Grid layout for Binder / Dex */
     .card-grid {
       display: flex;
       flex-wrap: wrap;
@@ -95,15 +175,10 @@
       overflow: hidden;
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
       position: relative;
-      transition: transform 0.2s;
     }
 
-    .card:hover { transform: translateY(-5px); }
     .card img { width: 100%; height: 100%; object-fit: cover; }
-
-    .card.unowned img {
-      filter: brightness(0.2) grayscale(1);
-    }
+    .card.unowned img { filter: brightness(0.2) grayscale(1); }
 
     .card-count {
       position: absolute;
@@ -124,6 +199,18 @@
       color: #00d26a;
       margin-top: 10px;
     }
+
+    .next-btn {
+      background-color: #ffcb05;
+      color: #121218;
+      border: none;
+      padding: 10px 25px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -136,23 +223,40 @@
     <button class="nav-btn" onclick="switchTab('dex-tab')">Card Dex (151)</button>
   </nav>
 
-  <div id="status" class="status">Loading set data...</div>
+  <div id="status" class="status">Loading 151 set data...</div>
 
+  <!-- TAB 1: OPEN PACK -->
   <div id="pack-tab" class="tab-content active">
-    <div id="pack-wrapper" onclick="triggerPackOpen()">
+    <div id="pack-container">
       <div id="pack-foil" class="pack-foil">
+        <div class="pack-top-strip">Swipe across top to tear</div>
         <h2>151</h2>
-        <p>Click to Rip Open!</p>
+        <p>BOOSTER PACK</p>
       </div>
     </div>
-    <div id="pack-cards" class="card-grid"></div>
+
+    <div id="reveal-area">
+      <div id="card-flipper" class="card-flipper" onclick="flipCurrentCard()">
+        <div class="card-inner">
+          <div class="card-back"></div>
+          <div class="card-front">
+            <img id="current-card-img" src="" alt="Card">
+          </div>
+        </div>
+      </div>
+      <p id="card-counter-text">Card 1 of 10</p>
+      <button id="next-card-btn" class="next-btn" onclick="nextCard()" style="display:none;">Next Card &gt;</button>
+      <button id="reset-pack-btn" class="next-btn" onclick="resetPackView()" style="display:none;">Open Another Pack</button>
+    </div>
   </div>
 
+  <!-- TAB 2: BINDER -->
   <div id="binder-tab" class="tab-content">
     <h2>My Collected Cards</h2>
     <div id="binder-grid" class="card-grid"></div>
   </div>
 
+  <!-- TAB 3: CARD DEX -->
   <div id="dex-tab" class="tab-content">
     <h2>151 Master Set Dex (0/207)</h2>
     <div id="dex-grid" class="card-grid"></div>
@@ -163,9 +267,16 @@
     let cardDatabase = [];
     let collection = JSON.parse(localStorage.getItem('pkm151_collection')) || {};
     let isReady = false;
-    let isOpening = false;
 
-    // Card categorization
+    let currentPack = [];
+    let currentCardIndex = 0;
+    let isCardFlipped = false;
+
+    let startX = 0;
+    let startY = 0;
+
+    let goldPsychicEnergyCard = null;
+
     let cardPool = {
       common: [],
       uncommon: [],
@@ -183,12 +294,17 @@
         const response = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${SET_ID}&orderBy=number`);
         const data = await response.json();
         
-        // Ensure proper numerical ordering 1 to 207
         cardDatabase = data.data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
 
         cardDatabase.forEach(card => {
           const rarity = card.rarity ? card.rarity.toLowerCase() : '';
           const supertype = card.supertype ? card.supertype.toLowerCase() : '';
+          const num = parseInt(card.number);
+
+          // Find the specific Gold Psychic Energy card (#207)
+          if (num === 207) {
+            goldPsychicEnergyCard = card;
+          }
 
           if (supertype === 'energy') {
             cardPool.energy.push(card);
@@ -211,8 +327,9 @@
           }
         });
 
-        document.getElementById('status').innerText = "151 Set Ready! Click the booster pack to open.";
+        document.getElementById('status').innerText = "151 Set Ready! Swipe top of booster pack to open.";
         isReady = true;
+        setupSwipeEvents();
         renderDex();
         renderBinder();
       } catch (err) {
@@ -226,72 +343,118 @@
       return pool[Math.floor(Math.random() * pool.length)];
     }
 
-    // Exact drop rate odds calculation based on user data
     function rollHitSlot() {
       const roll = Math.random() * 100;
+      if (roll < 1.94) return getRandomCard(cardPool.hyperRare);
+      if (roll < (1.94 + 3.11)) return getRandomCard(cardPool.specialIllustrationRare);
+      if (roll < (1.94 + 3.11 + 6.44)) return getRandomCard(cardPool.ultraRare);
+      if (roll < (1.94 + 3.11 + 6.44 + 8.50)) return getRandomCard(cardPool.illustrationRare);
+      if (roll < (1.94 + 3.11 + 6.44 + 8.50 + 13.28)) return getRandomCard(cardPool.doubleRare);
+      return getRandomCard(cardPool.rare);
+    }
 
-      if (roll < 1.94) {
-        return getRandomCard(cardPool.hyperRare);
-      } else if (roll < (1.94 + 3.11)) {
-        return getRandomCard(cardPool.specialIllustrationRare);
-      } else if (roll < (1.94 + 3.11 + 6.44)) {
-        return getRandomCard(cardPool.ultraRare);
-      } else if (roll < (1.94 + 3.11 + 6.44 + 8.50)) {
-        return getRandomCard(cardPool.illustrationRare);
-      } else if (roll < (1.94 + 3.11 + 6.44 + 8.50 + 13.28)) {
-        return getRandomCard(cardPool.doubleRare);
-      } else {
-        return getRandomCard(cardPool.rare);
+    function setupSwipeEvents() {
+      const foil = document.getElementById('pack-foil');
+
+      foil.addEventListener('mousedown', (e) => { startX = e.clientX; startY = e.clientY; });
+      foil.addEventListener('mouseup', (e) => { checkSwipe(e.clientX, e.clientY); });
+
+      foil.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      });
+      foil.addEventListener('touchend', (e) => {
+        checkSwipe(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+      });
+    }
+
+    function checkSwipe(endX, endY) {
+      const diffX = Math.abs(endX - startX);
+      const diffY = Math.abs(endY - startY);
+
+      if (diffX > 50 || diffY > 50) {
+        tearPack();
       }
     }
 
-    function triggerPackOpen() {
-      if (!isReady || isOpening) return;
-      isOpening = true;
+    function tearPack() {
+      if (!isReady) return;
 
-      const foil = document.getElementById('pack-foil');
-      const container = document.getElementById('pack-cards');
-      container.innerHTML = '';
-      foil.classList.add('opening');
+      document.getElementById('pack-container').style.display = 'none';
+      document.getElementById('reveal-area').style.display = 'flex';
 
-      setTimeout(() => {
-        generatePack();
-        foil.classList.remove('opening');
-        isOpening = false;
-      }, 600);
+      generatePack();
+      currentCardIndex = 0;
+      showCard(currentCardIndex);
     }
 
     function generatePack() {
-      let pack = [];
+      currentPack = [];
 
       // Slots 1-4: Common
-      for (let i = 0; i < 4; i++) pack.push(getRandomCard(cardPool.common));
+      for (let i = 0; i < 4; i++) currentPack.push(getRandomCard(cardPool.common));
       
-      // Slots 5-7: Uncommon
-      for (let i = 0; i < 3; i++) pack.push(getRandomCard(cardPool.uncommon));
-      
-      // Slot 8: Basic Energy (24.83% chance for Holo/Cosmos Energy slot)
-      pack.push(getRandomCard(cardPool.energy));
+      // Slots 5-6: Uncommon
+      for (let i = 0; i < 2; i++) currentPack.push(getRandomCard(cardPool.uncommon));
 
-      // Slot 9: Reverse Holo Slot
-      pack.push(getRandomCard([...cardPool.common, ...cardPool.uncommon, ...cardPool.rare]));
+      // Slot 7: GUARANTEED Gold Psychic Energy Card (#207)
+      currentPack.push(goldPsychicEnergyCard || getRandomCard(cardPool.hyperRare));
 
-      // Slot 10: Hit Slot (Exact Odds Roll)
-      pack.push(rollHitSlot());
+      // Slot 8: Basic Energy
+      currentPack.push(getRandomCard(cardPool.energy));
 
-      const container = document.getElementById('pack-cards');
-      pack.forEach(card => {
+      // Slot 9: Reverse Holo
+      currentPack.push(getRandomCard([...cardPool.common, ...cardPool.uncommon, ...cardPool.rare]));
+
+      // Slot 10: Hit Slot (Exact 151 Odds Roll)
+      currentPack.push(rollHitSlot());
+
+      // Save to collection
+      currentPack.forEach(card => {
         collection[card.id] = (collection[card.id] || 0) + 1;
-
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'card';
-        cardDiv.innerHTML = `<img src="${card.images.small}" alt="${card.name}">`;
-        container.appendChild(cardDiv);
       });
 
       localStorage.setItem('pkm151_collection', JSON.stringify(collection));
       renderBinder();
       renderDex();
+    }
+
+    function showCard(index) {
+      isCardFlipped = false;
+      const flipper = document.getElementById('card-flipper');
+      flipper.classList.remove('flipped');
+
+      const card = currentPack[index];
+      document.getElementById('current-card-img').src = card.images.small;
+      document.getElementById('card-counter-text').innerText = `Card ${index + 1} of 10`;
+
+      document.getElementById('next-card-btn').style.display = 'none';
+      document.getElementById('reset-pack-btn').style.display = 'none';
+    }
+
+    function flipCurrentCard() {
+      if (isCardFlipped) return;
+      isCardFlipped = true;
+
+      document.getElementById('card-flipper').classList.add('flipped');
+
+      if (currentCardIndex < 9) {
+        document.getElementById('next-card-btn').style.display = 'inline-block';
+      } else {
+        document.getElementById('reset-pack-btn').style.display = 'inline-block';
+      }
+    }
+
+    function nextCard() {
+      if (currentCardIndex < 9) {
+        currentCardIndex++;
+        showCard(currentCardIndex);
+      }
+    }
+
+    function resetPackView() {
+      document.getElementById('reveal-area').style.display = 'none';
+      document.getElementById('pack-container').style.display = 'block';
     }
 
     function renderBinder() {
