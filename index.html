@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pokémon TCG 151 Pack Opener</title>
+  <title>Pokémon TCG 151 Collector & Pack Simulator</title>
   <style>
+    * { box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #1a1a24;
+      background-color: #121218;
       color: #ffffff;
       text-align: center;
       margin: 0;
@@ -17,91 +18,158 @@
     h1 {
       color: #ffcb05;
       text-shadow: 2px 2px #3b4cca;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
 
-    p {
-      color: #a0a0b0;
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
       margin-bottom: 20px;
     }
 
-    button {
-      background-color: #ffcb05;
-      color: #1a1a24;
-      border: none;
-      padding: 15px 30px;
-      font-size: 18px;
+    .nav-btn {
+      background-color: #2a2a38;
+      color: #fff;
+      border: 2px solid #3b4cca;
+      padding: 10px 20px;
+      font-size: 16px;
       font-weight: bold;
       border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      transition: transform 0.1s, background-color 0.2s;
+      transition: all 0.2s;
     }
 
-    button:hover {
-      background-color: #ffe169;
+    .nav-btn.active, .nav-btn:hover {
+      background-color: #ffcb05;
+      color: #121218;
     }
 
-    button:active {
-      transform: scale(0.98);
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Pack Animation Area */
+    #pack-wrapper {
+      position: relative;
+      width: 220px;
+      height: 340px;
+      margin: 20px auto;
+      cursor: pointer;
+      perspective: 1000px;
     }
 
-    button:disabled {
-      background-color: #555;
-      color: #888;
-      cursor: not-allowed;
+    .pack-foil {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      border: 3px solid #ffcb05;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+      transition: transform 0.6s ease-in-out, opacity 0.5s ease;
     }
 
-    #card-container {
+    .pack-foil h2 { color: #ffcb05; margin: 0; font-size: 28px; }
+    .pack-foil p { color: #fff; margin-top: 5px; }
+
+    .pack-foil.opening {
+      transform: translateY(-200px) rotateX(40deg);
+      opacity: 0;
+    }
+
+    /* Cards Layout */
+    .card-grid {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 15px;
-      margin-top: 30px;
-      min-height: 300px;
+      margin-top: 20px;
     }
 
     .card {
-      width: 150px;
-      height: 210px;
+      width: 140px;
+      height: 196px;
       background-color: #2a2a38;
-      border-radius: 10px;
+      border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      position: relative;
       transition: transform 0.2s;
-      border: 2px solid #3b4cca;
     }
 
-    .card:hover {
-      transform: translateY(-5px);
+    .card:hover { transform: translateY(-5px); }
+    .card img { width: 100%; height: 100%; object-fit: cover; }
+
+    .card.unowned img {
+      filter: brightness(0.2) grayscale(1);
     }
 
-    .card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .card-count {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background: #ffcb05;
+      color: #000;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      font-size: 12px;
     }
 
     .status {
-      font-size: 18px;
-      margin-top: 20px;
+      font-size: 16px;
       color: #00d26a;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-  <h1>151 Booster Pack Opener</h1>
-  <p>Open a pack with real-life drop rates and card artwork!</p>
+  <h1>Pokémon 151 TCG Simulator</h1>
   
-  <button id="open-btn" onclick="openPack()">Open 151 Pack</button>
-  
-  <div id="status" class="status"></div>
-  <div id="card-container"></div>
+  <nav>
+    <button class="nav-btn active" onclick="switchTab('pack-tab')">Open Pack</button>
+    <button class="nav-btn" onclick="switchTab('binder-tab')">My Binder</button>
+    <button class="nav-btn" onclick="switchTab('dex-tab')">Card Dex (151)</button>
+  </nav>
+
+  <div id="status" class="status">Loading set data...</div>
+
+  <!-- TAB 1: OPEN PACK -->
+  <div id="pack-tab" class="tab-content active">
+    <div id="pack-wrapper" onclick="triggerPackOpen()">
+      <div id="pack-foil" class="pack-foil">
+        <h2>151</h2>
+        <p>Click to Rip Open!</p>
+      </div>
+    </div>
+    <div id="pack-cards" class="card-grid"></div>
+  </div>
+
+  <!-- TAB 2: BINDER -->
+  <div id="binder-tab" class="tab-content">
+    <h2>My Collected Cards</h2>
+    <div id="binder-grid" class="card-grid"></div>
+  </div>
+
+  <!-- TAB 3: CARD DEX -->
+  <div id="dex-tab" class="tab-content">
+    <h2>151 Master Set Dex (0/207)</h2>
+    <div id="dex-grid" class="card-grid"></div>
+  </div>
 
   <script>
-    // Set 151 Cards separated by real-world rarity categories
-    // Base set ID for Scarlet & Violet 151 is 'sv3pt5'
+    const SET_ID = 'sv3pt5'; // Scarlet & Violet 151
+    let cardDatabase = [];
+    let collection = JSON.parse(localStorage.getItem('pkm151_collection')) || {};
+    let isReady = false;
+    let isOpening = false;
+
     let cardPool = {
       common: [],
       uncommon: [],
@@ -114,25 +182,21 @@
       energy: []
     };
 
-    let isLoaded = false;
-
-    // Fetch card details directly from Pokemon TCG API for set 151 (sv3pt5)
-    async function load151Cards() {
-      const statusText = document.getElementById('status');
-      statusText.innerText = "Loading 151 card set data...";
-      document.getElementById('open-btn').disabled = true;
-
+    // Load full 151 Card Set from API
+    async function loadSetData() {
       try {
-        const response = await fetch('https://api.pokemontcg.io/v2/cards?q=set.id:sv3pt5');
+        const response = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${SET_ID}&orderBy=number`);
         const data = await response.json();
-        const cards = data.data;
+        cardDatabase = data.data;
 
-        // Categorize cards by rarity
-        cards.forEach(card => {
+        // Categorize cards by rarity slot logic
+        cardDatabase.forEach(card => {
           const rarity = card.rarity ? card.rarity.toLowerCase() : '';
           const supertype = card.supertype ? card.supertype.toLowerCase() : '';
+          const num = parseInt(card.number);
 
-          if (supertype === 'energy') {
+          // Dedicated Basic Energy check to avoid replacing pokemon slots
+          if (supertype === 'energy' || num === 207) {
             cardPool.energy.push(card);
           } else if (rarity.includes('common') && !rarity.includes('uncommon')) {
             cardPool.common.push(card);
@@ -153,73 +217,122 @@
           }
         });
 
-        statusText.innerText = "Set loaded! Click the button to open your pack.";
-        document.getElementById('open-btn').disabled = false;
-        isLoaded = true;
-      } catch (error) {
-        statusText.innerText = "Failed to load cards. Please refresh the page.";
-        console.error("Error loading cards:", error);
+        document.getElementById('status').innerText = "151 Set Ready! Click the booster pack to open.";
+        isReady = true;
+        renderDex();
+        renderBinder();
+      } catch (err) {
+        document.getElementById('status').innerText = "Error loading set. Please refresh.";
+        console.error(err);
       }
     }
 
-    // Helper to get a random card from a pool
     function getRandomCard(pool) {
-      if (!pool || pool.length === 0) return cardPool.common[0]; // Fallback
-      const randomIndex = Math.floor(Math.random() * pool.length);
-      return pool[randomIndex];
+      if (!pool || pool.length === 0) return cardPool.common[0];
+      return pool[Math.floor(Math.random() * pool.length)];
     }
 
-    // Roll real-life slot 10 rare odds
-    function getHitSlot() {
+    function rollHitSlot() {
       const roll = Math.random() * 100;
-
-      // Real-life approximate 151 pull rates per pack:
-      if (roll < 1) return getRandomCard(cardPool.hyperRare);             // ~1%
-      if (roll < 4) return getRandomCard(cardPool.specialIllustrationRare); // ~3%
-      if (roll < 10) return getRandomCard(cardPool.illustrationRare);     // ~6%
-      if (roll < 18) return getRandomCard(cardPool.ultraRare);            // ~8%
-      if (roll < 33) return getRandomCard(cardPool.doubleRare);           // ~15%
-      return getRandomCard(cardPool.rare);                                // ~67% Holo Rare
+      if (roll < 1) return getRandomCard(cardPool.hyperRare);
+      if (roll < 4) return getRandomCard(cardPool.specialIllustrationRare);
+      if (roll < 10) return getRandomCard(cardPool.illustrationRare);
+      if (roll < 18) return getRandomCard(cardPool.ultraRare);
+      if (roll < 33) return getRandomCard(cardPool.doubleRare);
+      return getRandomCard(cardPool.rare);
     }
 
-    // Generate a full 10-card booster pack
-    function openPack() {
-      if (!isLoaded) return;
+    function triggerPackOpen() {
+      if (!isReady || isOpening) return;
+      isOpening = true;
 
-      const container = document.getElementById('card-container');
+      const foil = document.getElementById('pack-foil');
+      const container = document.getElementById('pack-cards');
       container.innerHTML = '';
-      document.getElementById('status').innerText = "Opening pack...";
+      foil.classList.add('opening');
 
+      setTimeout(() => {
+        generatePack();
+        foil.classList.remove('opening');
+        isOpening = false;
+      }, 600);
+    }
+
+    function generatePack() {
       let pack = [];
 
-      // Slots 1-4: Commons
+      // Slot 1-4: Common
       for (let i = 0; i < 4; i++) pack.push(getRandomCard(cardPool.common));
-
-      // Slots 5-7: Uncommons
+      // Slot 5-7: Uncommon
       for (let i = 0; i < 3; i++) pack.push(getRandomCard(cardPool.uncommon));
-
       // Slot 8: Energy
-      pack.push(getRandomCard(cardPool.energy.length > 0 ? cardPool.energy : cardPool.common));
-
-      // Slot 9: Reverse Holo (Simulated using common/uncommon/rare pool)
+      pack.push(getRandomCard(cardPool.energy));
+      // Slot 9: Reverse Holo Slot
       pack.push(getRandomCard([...cardPool.common, ...cardPool.uncommon, ...cardPool.rare]));
+      // Slot 10: Hit Slot
+      pack.push(rollHitSlot());
 
-      // Slot 10: Rare / Hit Slot
-      pack.push(getHitSlot());
-
-      // Display cards
+      const container = document.getElementById('pack-cards');
       pack.forEach(card => {
+        // Save to local storage collection
+        collection[card.id] = (collection[card.id] || 0) + 1;
+
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card';
         cardDiv.innerHTML = `<img src="${card.images.small}" alt="${card.name}">`;
         container.appendChild(cardDiv);
       });
 
-      document.getElementById('status').innerText = "Pack Opened!";
+      localStorage.setItem('pkm151_collection', JSON.stringify(collection));
+      renderBinder();
+      renderDex();
     }
 
-    // Load the 151 set automatically when the page loads
-    window.onload = load151Cards;
+    function renderBinder() {
+      const binderGrid = document.getElementById('binder-grid');
+      binderGrid.innerHTML = '';
+
+      Object.keys(collection).forEach(cardId => {
+        const card = cardDatabase.find(c => c.id === cardId);
+        if (card) {
+          const cardDiv = document.createElement('div');
+          cardDiv.className = 'card';
+          cardDiv.innerHTML = `
+            <img src="${card.images.small}" alt="${card.name}">
+            <div class="card-count">x${collection[cardId]}</div>
+          `;
+          binderGrid.appendChild(cardDiv);
+        }
+      });
+    }
+
+    function renderDex() {
+      const dexGrid = document.getElementById('dex-grid');
+      dexGrid.innerHTML = '';
+
+      let totalOwned = 0;
+      cardDatabase.forEach(card => {
+        const count = collection[card.id] || 0;
+        if (count > 0) totalOwned++;
+
+        const cardDiv = document.createElement('div');
+        cardDiv.className = `card ${count === 0 ? 'unowned' : ''}`;
+        cardDiv.innerHTML = `<img src="${card.images.small}" alt="${card.name}">`;
+        dexGrid.appendChild(cardDiv);
+      });
+
+      document.querySelector('#dex-tab h2').innerText = `151 Master Set Dex (${totalOwned}/${cardDatabase.length})`;
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    window.onload = loadSetData;
   </script>
 </body>
 </html>
