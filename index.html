@@ -275,8 +275,6 @@
     let startX = 0;
     let startY = 0;
 
-    let goldPsychicEnergyCard = null;
-
     let cardPool = {
       common: [],
       uncommon: [],
@@ -299,12 +297,6 @@
         cardDatabase.forEach(card => {
           const rarity = card.rarity ? card.rarity.toLowerCase() : '';
           const supertype = card.supertype ? card.supertype.toLowerCase() : '';
-          const num = parseInt(card.number);
-
-          // Find the specific Gold Psychic Energy card (#207)
-          if (num === 207) {
-            goldPsychicEnergyCard = card;
-          }
 
           if (supertype === 'energy') {
             cardPool.energy.push(card);
@@ -391,25 +383,22 @@
     function generatePack() {
       currentPack = [];
 
-      // Slots 1-4: Common
+      // Slots 1-4: Common Cards
       for (let i = 0; i < 4; i++) currentPack.push(getRandomCard(cardPool.common));
       
-      // Slots 5-6: Uncommon
-      for (let i = 0; i < 2; i++) currentPack.push(getRandomCard(cardPool.uncommon));
-
-      // Slot 7: GUARANTEED Gold Psychic Energy Card (#207)
-      currentPack.push(goldPsychicEnergyCard || getRandomCard(cardPool.hyperRare));
+      // Slots 5-7: Uncommon Cards (Slot 7 is an Uncommon Pokemon card now!)
+      for (let i = 0; i < 3; i++) currentPack.push(getRandomCard(cardPool.uncommon));
 
       // Slot 8: Basic Energy
       currentPack.push(getRandomCard(cardPool.energy));
 
-      // Slot 9: Reverse Holo
+      // Slot 9: Reverse Holo Slot
       currentPack.push(getRandomCard([...cardPool.common, ...cardPool.uncommon, ...cardPool.rare]));
 
       // Slot 10: Hit Slot (Exact 151 Odds Roll)
       currentPack.push(rollHitSlot());
 
-      // Save to collection
+      // Save to local collection
       currentPack.forEach(card => {
         collection[card.id] = (collection[card.id] || 0) + 1;
       });
