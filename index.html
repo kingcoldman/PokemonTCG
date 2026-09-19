@@ -177,19 +177,13 @@
       transition: transform 0.5s ease, opacity 0.5s ease;
     }
 
-    .card-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
     .card-item.slide-out {
       transform: translateX(130%) rotate(20deg);
       opacity: 0;
       pointer-events: none;
     }
 
-    /* Fallback Styled Card rendering if API image is missing */
+    /* Built-in Styled Card graphic */
     .styled-card {
       width: 100%;
       height: 100%;
@@ -200,14 +194,14 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 12px;
+      padding: 15px 10px;
       color: #fff;
       box-sizing: border-box;
     }
 
-    .styled-card-name { font-size: 16px; font-weight: bold; color: #ffcb05; }
-    .styled-card-icon { font-size: 45px; margin: 10px 0; }
-    .styled-card-rarity { font-size: 11px; background: #3b4cca; padding: 3px 8px; border-radius: 10px; }
+    .styled-card-name { font-size: 18px; font-weight: bold; color: #ffcb05; }
+    .styled-card-icon { font-size: 55px; margin: 10px 0; }
+    .styled-card-rarity { font-size: 12px; background: #3b4cca; padding: 4px 10px; border-radius: 10px; }
 
     /* --- 4x4 BINDER GRID --- */
     .binder-container {
@@ -245,10 +239,7 @@
       background-color: #2a2a38;
     }
 
-    .binder-slot img, .binder-slot .styled-card {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .binder-slot .styled-card {
       cursor: grab;
     }
 
@@ -276,8 +267,8 @@
     }
 
     .tray-card {
-      width: 90px;
-      height: 126px;
+      width: 100px;
+      height: 140px;
       border-radius: 6px;
       overflow: hidden;
       cursor: grab;
@@ -286,7 +277,6 @@
     }
 
     .tray-card:hover { transform: scale(1.05); }
-    .tray-card img, .tray-card .styled-card { width: 100%; height: 100%; object-fit: cover; }
 
     /* --- DEX GRID --- */
     .card-grid {
@@ -298,8 +288,8 @@
     }
 
     .card {
-      width: 130px;
-      height: 182px;
+      width: 120px;
+      height: 168px;
       background-color: #2a2a38;
       border-radius: 8px;
       overflow: hidden;
@@ -307,8 +297,7 @@
       position: relative;
     }
 
-    .card img, .card .styled-card { width: 100%; height: 100%; object-fit: cover; }
-    .card.unowned img, .card.unowned .styled-card { filter: brightness(0.2) grayscale(1); }
+    .card.unowned .styled-card { filter: brightness(0.2) grayscale(1); }
 
     .status {
       font-size: 15px;
@@ -342,7 +331,7 @@
     <button class="nav-btn" onclick="switchTab('dex-tab')">Card Dex</button>
   </nav>
 
-  <div id="status" class="status">Loading Pokémon 151 set...</div>
+  <div id="status" class="status">Click 'Open Pack' to begin!</div>
 
   <!-- TAB 1: PACK SIMULATOR -->
   <div id="pack-tab" class="tab-content active">
@@ -359,7 +348,7 @@
             <div style="font-size: 12px; font-weight: bold; color: #ffcb05;">10 TRADING CARDS</div>
             <div class="pack-crimp-bottom"></div>
           </div>
-          <div id="tear-strip" class="tear-guide" onclick="ripPack()">CLICK OR SWIPE TO RIP OPEN!</div>
+          <div id="tear-strip" class="tear-guide" onclick="ripPack()">CLICK TO RIP OPEN!</div>
         </div>
       </div>
       <button id="zoom-btn" class="action-btn" onclick="prepareToOpen()">Open Pack</button>
@@ -384,7 +373,7 @@
 
     <div class="tray-area">
       <h3>Unbound Cards</h3>
-      <p style="font-size: 12px; color: #888;">Cards you've opened that aren't placed in the binder yet:</p>
+      <p style="font-size: 12px; color: #888;">Cards you've opened that aren't in your binder yet:</p>
       <div id="tray-grid" class="tray-grid"></div>
     </div>
   </div>
@@ -396,92 +385,46 @@
   </div>
 
   <script>
-    const SET_ID = 'sv3pt5';
-    let cardDatabase = [];
+    // Built-in Cards Dataset
+    const cardDatabase = [
+      { id: '1', name: 'Bulbasaur', rarity: 'Common', icon: '🍃' },
+      { id: '4', name: 'Charmander', rarity: 'Common', icon: '🔥' },
+      { id: '7', name: 'Squirtle', rarity: 'Common', icon: '💧' },
+      { id: '25', name: 'Pikachu', rarity: 'Uncommon', icon: '⚡' },
+      { id: '39', name: 'Jigglypuff', rarity: 'Common', icon: '🎤' },
+      { id: '54', name: 'Psyduck', rarity: 'Common', icon: '😵' },
+      { id: '94', name: 'Gengar', rarity: 'Rare', icon: '👻' },
+      { id: '133', name: 'Eevee', rarity: 'Common', icon: '🦊' },
+      { id: '143', name: 'Snorlax', rarity: 'Rare', icon: '💤' },
+      { id: '150', name: 'Mewtwo', rarity: 'Ultra Rare', icon: '💥' },
+      { id: '151', name: 'Mew ex', rarity: 'Double Rare', icon: '✨' },
+      { id: '198', name: 'Venusaur ex', rarity: 'Special Illustration', icon: '🌺' },
+      { id: '199', name: 'Charizard ex', rarity: 'Special Illustration', icon: '🐲' },
+      { id: '200', name: 'Blastoise ex', rarity: 'Special Illustration', icon: '🌊' }
+    ];
+
     let collection = JSON.parse(localStorage.getItem('pkm151_collection')) || [];
     let binderSlots = JSON.parse(localStorage.getItem('pkm151_binder_4x4')) || Array(16).fill(null);
-    let isReady = false;
 
     let currentPack = [];
     let cardsRemaining = 10;
-    let startX = 0;
     let draggedCardInstanceId = null;
 
-    // Local Fallback Dataset in case API request fails or is blocked
-    const fallbackCards = [
-      { id: '1', name: 'Bulbasaur', rarity: 'Common', icon: '🍃', images: { small: 'https://images.pokemontcg.io/sv3pt5/1.png' } },
-      { id: '4', name: 'Charmander', rarity: 'Common', icon: '🔥', images: { small: 'https://images.pokemontcg.io/sv3pt5/4.png' } },
-      { id: '7', name: 'Squirtle', rarity: 'Common', icon: '💧', images: { small: 'https://images.pokemontcg.io/sv3pt5/7.png' } },
-      { id: '25', name: 'Pikachu', rarity: 'Uncommon', icon: '⚡', images: { small: 'https://images.pokemontcg.io/sv3pt5/25.png' } },
-      { id: '39', name: 'Jigglypuff', rarity: 'Common', icon: '🎤', images: { small: 'https://images.pokemontcg.io/sv3pt5/39.png' } },
-      { id: '54', name: 'Psyduck', rarity: 'Common', icon: '😵', images: { small: 'https://images.pokemontcg.io/sv3pt5/54.png' } },
-      { id: '94', name: 'Gengar', rarity: 'Rare', icon: '👻', images: { small: 'https://images.pokemontcg.io/sv3pt5/94.png' } },
-      { id: '133', name: 'Eevee', rarity: 'Common', icon: '🦊', images: { small: 'https://images.pokemontcg.io/sv3pt5/133.png' } },
-      { id: '143', name: 'Snorlax', rarity: 'Rare', icon: '💤', images: { small: 'https://images.pokemontcg.io/sv3pt5/143.png' } },
-      { id: '150', name: 'Mewtwo', rarity: 'Ultra Rare', icon: '💥', images: { small: 'https://images.pokemontcg.io/sv3pt5/150.png' } },
-      { id: '151', name: 'Mew ex', rarity: 'Double Rare', icon: '✨', images: { small: 'https://images.pokemontcg.io/sv3pt5/151.png' } },
-      { id: '198', name: 'Venusaur ex', rarity: 'Special Illustration', icon: '🌺', images: { small: 'https://images.pokemontcg.io/sv3pt5/198.png' } },
-      { id: '199', name: 'Charizard ex', rarity: 'Special Illustration', icon: '🐲', images: { small: 'https://images.pokemontcg.io/sv3pt5/199.png' } },
-      { id: '200', name: 'Blastoise ex', rarity: 'Special Illustration', icon: '🌊', images: { small: 'https://images.pokemontcg.io/sv3pt5/200.png' } }
-    ];
-
-    async function loadSetData() {
-      // 5-second timeout safeguard so loading never hangs forever
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-      try {
-        const response = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${SET_ID}&orderBy=number`, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        const data = await response.json();
-
-        if (data && data.data && data.data.length > 0) {
-          cardDatabase = data.data;
-          document.getElementById('status').innerText = "151 Set Ready! Click 'Open Pack' to begin.";
-        } else {
-          useFallbackData();
-        }
-      } catch (err) {
-        useFallbackData();
-      }
-
-      isReady = true;
-      setupTearEvents();
-      renderDex();
-      renderBinder();
-    }
-
-    function useFallbackData() {
-      cardDatabase = fallbackCards;
-      document.getElementById('status').innerText = "Ready to Open Packs!";
-    }
-
     function createCardElementHTML(card) {
-      if (!card) return '';
-      return `<img src="${card.images.small}" alt="${card.name}" onerror="this.outerHTML='<div class=\\'styled-card\\'><div class=\\'styled-card-name\\'>${card.name}</div><div class=\\'styled-card-icon\\'>${card.icon || '🎴'}</div><div class=\\'styled-card-rarity\\'>${card.rarity || 'Card'}</div></div>'">`;
+      return `
+        <div class="styled-card">
+          <div class="styled-card-name">${card.name}</div>
+          <div class="styled-card-icon">${card.icon}</div>
+          <div class="styled-card-rarity">${card.rarity}</div>
+        </div>
+      `;
     }
 
     function prepareToOpen() {
-      if (!isReady) {
-        alert("Preparing set, please try again in a moment!");
-        return;
-      }
       document.getElementById('pack-frame').classList.add('zoomed');
       document.getElementById('zoom-btn').style.display = 'none';
       document.getElementById('rip-now-btn').style.display = 'inline-block';
-      document.getElementById('status').innerText = "Click the dotted line or green button to rip open!";
-    }
-
-    function setupTearEvents() {
-      const tearStrip = document.getElementById('tear-strip');
-      tearStrip.addEventListener('mousedown', (e) => { startX = e.clientX; });
-      tearStrip.addEventListener('mouseup', (e) => { checkDrag(e.clientX); });
-      tearStrip.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
-      tearStrip.addEventListener('touchend', (e) => { checkDrag(e.changedTouches[0].clientX); });
-    }
-
-    function checkDrag(endX) {
-      if (Math.abs(endX - startX) > 15) ripPack();
+      document.getElementById('status').innerText = "Click 'Rip Pack Open!' to reveal your cards!";
     }
 
     function ripPack() {
@@ -499,12 +442,10 @@
       }
 
       currentPack.forEach(card => {
-        if (card && card.id) {
-          collection.push({
-            instanceId: 'card_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-            cardId: card.id
-          });
-        }
+        collection.push({
+          instanceId: 'card_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+          cardId: card.id
+        });
       });
 
       localStorage.setItem('pkm151_collection', JSON.stringify(collection));
@@ -521,7 +462,6 @@
 
       for (let i = currentPack.length - 1; i >= 0; i--) {
         const card = currentPack[i];
-        if (!card) continue;
         
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card-item';
@@ -672,7 +612,10 @@
       event.target.classList.add('active');
     }
 
-    window.onload = loadSetData;
+    window.onload = function() {
+      renderDex();
+      renderBinder();
+    };
   </script>
 </body>
 </html>
