@@ -52,8 +52,8 @@
 
     /* --- PACK STYLING --- */
     .pack-stage {
-      width: 250px;
-      height: 380px;
+      width: 240px;
+      height: 360px;
       margin: 10px auto;
     }
 
@@ -61,8 +61,8 @@
       width: 100%;
       height: 100%;
       background: linear-gradient(135deg, #1e295d, #3b4cca, #e60012);
-      border: 3px solid #ffcb05;
-      border-radius: 12px;
+      border: 4px solid #ffcb05;
+      border-radius: 14px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.8);
       display: flex;
       flex-direction: column;
@@ -74,49 +74,45 @@
 
     .pack-crimp-top, .pack-crimp-bottom {
       width: 100%;
-      height: 18px;
-      background: repeating-linear-gradient(90deg, #c0c0c0, #c0c0c0 4px, #e8e8e8 4px, #e8e8e8 8px);
-      border-bottom: 2px solid #aaa;
+      height: 20px;
+      background: repeating-linear-gradient(90deg, #c0c0c0, #c0c0c0 5px, #e8e8e8 5px, #e8e8e8 10px);
+      border-bottom: 2px solid #888;
       z-index: 2;
     }
     .pack-crimp-bottom {
       border-bottom: none;
-      border-top: 2px solid #aaa;
+      border-top: 2px solid #888;
     }
 
     .pack-art-container {
-      width: 100%;
-      height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 15px;
-      padding: 10px;
-      z-index: 1;
+      gap: 10px;
     }
 
     .pack-title {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 900;
       color: #ffcb05;
       text-shadow: 2px 2px #000;
+      letter-spacing: 1px;
     }
 
     .pack-151-badge {
       background: #e60012;
       color: #ffffff;
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 900;
-      padding: 10px 30px;
-      border-radius: 10px;
+      padding: 6px 25px;
+      border-radius: 8px;
       border: 3px solid #ffffff;
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      letter-spacing: 2px;
       text-shadow: 2px 2px 0px #000;
     }
 
-    /* --- CARDS DISPLAY --- */
+    /* --- REVEAL AREA --- */
     #reveal-area {
       display: none;
       flex-direction: column;
@@ -127,11 +123,26 @@
     .card-stack {
       position: relative;
       width: 220px;
-      height: 308px;
+      height: 310px;
       margin-bottom: 15px;
     }
 
-    /* --- CSS POKÉMON CARD --- */
+    /* --- PURE CODE CARD STYLING --- */
+    .card-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+
+    .card-wrapper.slide-out {
+      transform: translateX(140%) rotate(25deg);
+      opacity: 0;
+      pointer-events: none;
+    }
+
     .pokemon-card {
       width: 100%;
       height: 100%;
@@ -141,65 +152,56 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 10px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-      position: absolute;
-      top: 0;
-      left: 0;
+      padding: 8px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.7);
       cursor: pointer;
-      transition: transform 0.5s ease, opacity 0.5s ease;
-    }
-
-    .pokemon-card.slide-out {
-      transform: translateX(130%) rotate(20deg);
-      opacity: 0;
-      pointer-events: none;
     }
 
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-weight: bold;
+      font-weight: 900;
       color: #121218;
-      background: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.9);
       padding: 4px 8px;
       border-radius: 6px;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .card-art-box {
       width: 100%;
-      height: 150px;
+      height: 160px;
       border-radius: 8px;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       border: 3px solid #ffffff;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
     }
 
     .card-art-emoji {
-      font-size: 50px;
+      font-size: 65px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
     }
 
     .card-footer {
-      background: rgba(0,0,0,0.6);
-      color: #fff;
+      background: rgba(0,0,0,0.75);
+      color: #ffffff;
       padding: 6px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
+      letter-spacing: 0.5px;
     }
 
-    /* Card Types Styling */
-    .type-grass { background: linear-gradient(135deg, #4ef037, #2e8b22); }
-    .type-fire { background: linear-gradient(135deg, #ff5533, #b32400); }
-    .type-water { background: linear-gradient(135deg, #3399ff, #004499); }
-    .type-electric { background: linear-gradient(135deg, #ffe033, #b39700); }
-    .type-psychic { background: linear-gradient(135deg, #ff3399, #880044); }
-    .type-colorless { background: linear-gradient(135deg, #cccccc, #777777); }
+    /* Elemental Backgrounds */
+    .type-grass { background: linear-gradient(135deg, #51df39, #1b6313); }
+    .type-fire { background: linear-gradient(135deg, #ff5330, #961b00); }
+    .type-water { background: linear-gradient(135deg, #389bff, #003e8a); }
+    .type-electric { background: linear-gradient(135deg, #ffd833, #9e8200); }
+    .type-psychic { background: linear-gradient(135deg, #ff33a8, #7a004b); }
+    .type-colorless { background: linear-gradient(135deg, #d1d1d1, #575757); }
     .type-ex { background: linear-gradient(135deg, #ff007f, #7f00ff, #00d4ff); border-color: #ffffff; }
 
     /* --- BINDER GRID --- */
@@ -217,7 +219,6 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      justify-items: center;
     }
 
     .binder-slot {
@@ -261,56 +262,37 @@
       margin-top: 10px;
     }
 
-    .tray-card-wrapper {
+    /* Small card overrides for Binder/Tray/Dex */
+    .mini-card {
       width: 90px;
       height: 126px;
-      cursor: grab;
-      transition: transform 0.2s;
+      cursor: pointer;
     }
-
-    .tray-card-wrapper:hover { transform: scale(1.05); }
-
-    .tray-card-wrapper .pokemon-card {
-      position: relative;
-      border-width: 3px;
-      padding: 4px;
-      font-size: 8px;
-    }
-
-    .tray-card-wrapper .card-header { font-size: 8px; padding: 2px 4px; }
-    .tray-card-wrapper .card-art-box { height: 60px; }
-    .tray-card-wrapper .card-art-emoji { font-size: 24px; }
-    .tray-card-wrapper .card-footer { font-size: 8px; padding: 2px; }
+    .mini-card .pokemon-card { border-width: 3px; padding: 3px; border-radius: 6px; }
+    .mini-card .card-header { font-size: 8px; padding: 2px; }
+    .mini-card .card-art-box { height: 65px; border-width: 1px; }
+    .mini-card .card-art-emoji { font-size: 26px; }
+    .mini-card .card-footer { font-size: 7px; padding: 2px; }
 
     /* --- DEX GRID --- */
     .card-grid {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       margin-top: 20px;
     }
 
-    .dex-card-wrapper {
-      width: 110px;
-      height: 154px;
-      position: relative;
+    .dex-card {
+      width: 100px;
+      height: 140px;
     }
-
-    .dex-card-wrapper .pokemon-card {
-      position: relative;
-      border-width: 4px;
-      padding: 5px;
-    }
-
-    .dex-card-wrapper .card-header { font-size: 10px; padding: 2px 4px; }
-    .dex-card-wrapper .card-art-box { height: 75px; }
-    .dex-card-wrapper .card-art-emoji { font-size: 28px; }
-    .dex-card-wrapper .card-footer { font-size: 9px; padding: 3px; }
-
-    .dex-card-wrapper.unowned .pokemon-card {
-      filter: brightness(0.25) grayscale(1);
-    }
+    .dex-card .pokemon-card { border-width: 4px; padding: 4px; }
+    .dex-card .card-header { font-size: 9px; padding: 2px; }
+    .dex-card .card-art-box { height: 72px; border-width: 2px; }
+    .dex-card .card-art-emoji { font-size: 30px; }
+    .dex-card .card-footer { font-size: 8px; padding: 2px; }
+    .dex-card.unowned { filter: brightness(0.2) grayscale(1); }
 
     .status {
       font-size: 15px;
@@ -328,10 +310,8 @@
       border-radius: 8px;
       cursor: pointer;
       margin-top: 15px;
-      transition: transform 0.1s;
       box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
-
     .action-btn:active { transform: scale(0.96); }
   </style>
 </head>
@@ -414,22 +394,18 @@
     let collection = [];
     try {
       collection = JSON.parse(localStorage.getItem('pkm151_collection')) || [];
-    } catch (e) {
-      collection = [];
-    }
+    } catch (e) { collection = []; }
 
     let binderSlots = [];
     try {
       binderSlots = JSON.parse(localStorage.getItem('pkm151_binder_4x4')) || Array(16).fill(null);
-    } catch (e) {
-      binderSlots = Array(16).fill(null);
-    }
+    } catch (e) { binderSlots = Array(16).fill(null); }
 
     let currentPack = [];
     let cardsRemaining = 10;
     let draggedCardInstanceId = null;
 
-    function createCardHTML(card) {
+    function buildCardHTML(card) {
       return `
         <div class="pokemon-card">
           <div class="card-header">
@@ -483,18 +459,14 @@
       for (let i = currentPack.length - 1; i >= 0; i--) {
         const card = currentPack[i];
         
-        const cardWrapper = document.createElement('div');
-        cardWrapper.style.position = 'absolute';
-        cardWrapper.style.width = '100%';
-        cardWrapper.style.height = '100%';
-        cardWrapper.style.zIndex = currentPack.length - i;
-        cardWrapper.innerHTML = createCardHTML(card);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'card-wrapper';
+        wrapper.style.zIndex = currentPack.length - i;
+        wrapper.innerHTML = buildCardHTML(card);
 
-        const cardEl = cardWrapper.querySelector('.pokemon-card');
-
-        cardEl.onclick = function() {
-          if (!cardEl.classList.contains('slide-out')) {
-            cardEl.classList.add('slide-out');
+        wrapper.onclick = function() {
+          if (!wrapper.classList.contains('slide-out')) {
+            wrapper.classList.add('slide-out');
             cardsRemaining--;
             
             if (cardsRemaining > 0) {
@@ -506,7 +478,7 @@
           }
         };
 
-        stack.appendChild(cardWrapper);
+        stack.appendChild(wrapper);
       }
     }
 
@@ -524,7 +496,6 @@
       for (let i = 0; i < 16; i++) {
         const slotDiv = document.createElement('div');
         slotDiv.className = 'binder-slot';
-        slotDiv.dataset.slotIndex = i;
 
         const boundInstanceId = binderSlots[i];
         const itemInSlot = collection.find(c => c.instanceId === boundInstanceId);
@@ -533,12 +504,12 @@
           const cardData = cardDatabase.find(c => c.id === itemInSlot.cardId);
           if (cardData) {
             const wrapper = document.createElement('div');
-            wrapper.className = 'tray-card-wrapper';
+            wrapper.className = 'mini-card';
             wrapper.style.width = '100%';
             wrapper.style.height = '100%';
             wrapper.draggable = true;
             wrapper.ondragstart = (e) => onDragStart(e, itemInSlot.instanceId);
-            wrapper.innerHTML = createCardHTML(cardData);
+            wrapper.innerHTML = buildCardHTML(cardData);
             slotDiv.appendChild(wrapper);
           }
         } else {
@@ -562,10 +533,10 @@
         const cardData = cardDatabase.find(c => c.id === item.cardId);
         if (cardData) {
           const cardDiv = document.createElement('div');
-          cardDiv.className = 'tray-card-wrapper';
+          cardDiv.className = 'mini-card';
           cardDiv.draggable = true;
           cardDiv.ondragstart = (e) => onDragStart(e, item.instanceId);
-          cardDiv.innerHTML = createCardHTML(cardData);
+          cardDiv.innerHTML = buildCardHTML(cardData);
           cardDiv.onclick = () => autoPlaceCard(item.instanceId);
 
           trayGrid.appendChild(cardDiv);
@@ -621,8 +592,8 @@
         if (isOwned) totalOwned++;
 
         const cardDiv = document.createElement('div');
-        cardDiv.className = `dex-card-wrapper ${!isOwned ? 'unowned' : ''}`;
-        cardDiv.innerHTML = createCardHTML(card);
+        cardDiv.className = `dex-card ${!isOwned ? 'unowned' : ''}`;
+        cardDiv.innerHTML = buildCardHTML(card);
         dexGrid.appendChild(cardDiv);
       });
 
