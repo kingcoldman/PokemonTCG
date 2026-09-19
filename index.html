@@ -55,19 +55,6 @@
       width: 250px;
       height: 430px;
       margin: 10px auto;
-      perspective: 800px;
-    }
-
-    .pack-frame {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      transition: transform 0.5s ease;
-      transform-origin: center 20%;
-    }
-
-    .pack-frame.zoomed {
-      transform: scale(1.35) translateY(25px);
     }
 
     .booster-pack {
@@ -290,13 +277,14 @@
       background-color: #ffcb05;
       color: #121218;
       border: none;
-      padding: 12px 28px;
-      font-size: 16px;
+      padding: 14px 32px;
+      font-size: 18px;
       font-weight: bold;
       border-radius: 8px;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 15px;
       transition: transform 0.1s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
 
     .action-btn:active { transform: scale(0.96); }
@@ -312,26 +300,23 @@
     <button class="nav-btn" onclick="switchTab('dex-tab', event)">Card Dex</button>
   </nav>
 
-  <div id="status" class="status">Click 'Open Pack' to begin!</div>
+  <div id="status" class="status">Click 'Open Pack' to rip open your pack!</div>
 
   <!-- TAB 1: PACK SIMULATOR -->
   <div id="pack-tab" class="tab-content active">
     <div id="pack-container">
       <div class="pack-stage">
-        <div id="pack-frame" class="pack-frame">
-          <div class="booster-pack">
-            <div class="pack-crimp-top"></div>
-            <div class="pack-art-container">
-              <img class="pack-logo" src="https://images.pokemontcg.io/sv3pt5/logo.png" alt="Scarlet & Violet 151 Logo">
-              <img class="pack-mew-art" src="https://images.pokemontcg.io/sv3pt5/151.png" alt="151 Mew Art">
-              <div class="pack-151-badge">151</div>
-            </div>
-            <div class="pack-crimp-bottom"></div>
+        <div class="booster-pack">
+          <div class="pack-crimp-top"></div>
+          <div class="pack-art-container">
+            <img class="pack-logo" src="https://images.pokemontcg.io/sv3pt5/logo.png" alt="Scarlet & Violet 151 Logo">
+            <img class="pack-mew-art" src="https://images.pokemontcg.io/sv3pt5/151.png" alt="151 Mew Art">
+            <div class="pack-151-badge">151</div>
           </div>
+          <div class="pack-crimp-bottom"></div>
         </div>
       </div>
-      <button id="zoom-btn" class="action-btn" onclick="prepareToOpen()">Open Pack</button>
-      <button id="rip-now-btn" class="action-btn" onclick="ripPack()" style="display:none; background-color: #00d26a; color:#fff;">Rip Pack Open!</button>
+      <button class="action-btn" onclick="openPackNow()">Open Pack!</button>
     </div>
 
     <div id="reveal-area">
@@ -403,16 +388,10 @@
       return `<img src="${card.image}" alt="${card.name}" loading="lazy">`;
     }
 
-    function prepareToOpen() {
-      document.getElementById('pack-frame').classList.add('zoomed');
-      document.getElementById('zoom-btn').style.display = 'none';
-      document.getElementById('rip-now-btn').style.display = 'inline-block';
-      document.getElementById('status').innerText = "Click 'Rip Pack Open!' to reveal your cards!";
-    }
-
-    function ripPack() {
+    function openPackNow() {
       document.getElementById('pack-container').style.display = 'none';
       document.getElementById('reveal-area').style.display = 'flex';
+      document.getElementById('status').innerText = "Tap each card to reveal what you got!";
       generatePack();
       renderPackStack();
     }
@@ -470,9 +449,6 @@
     }
 
     function resetPackView() {
-      document.getElementById('pack-frame').classList.remove('zoomed');
-      document.getElementById('zoom-btn').style.display = 'inline-block';
-      document.getElementById('rip-now-btn').style.display = 'none';
       document.getElementById('reveal-area').style.display = 'none';
       document.getElementById('pack-container').style.display = 'block';
       document.getElementById('status').innerText = "Ready to open another pack!";
