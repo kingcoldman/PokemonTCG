@@ -1,4 +1,3 @@
-HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,7 +83,6 @@ HTML
       justify-content: space-between;
       position: relative;
       overflow: hidden;
-      /* Repeating background pattern simulating the 151 silhouette wrap */
       background-image: radial-gradient(#e0e0e0 15%, transparent 16%), radial-gradient(#d5d5e1 15%, transparent 16%);
       background-size: 20px 20px;
       background-position: 0 0, 10px 10px;
@@ -325,7 +323,7 @@ HTML
             <div class="pack-crimp-top"></div>
             <div class="pack-art-container">
               <img class="pack-logo" src="https://images.pokemontcg.io/sv3pt5/logo.png" alt="Scarlet & Violet 151 Logo">
-              <img class="pack-mew-art" src="https://images.pokemontcg.io/sv3pt5/151_hirsch.png" onerror="this.src='https://images.pokemontcg.io/sv3pt5/151.png'" alt="151 Mew Art">
+              <img class="pack-mew-art" src="https://images.pokemontcg.io/sv3pt5/151.png" alt="151 Mew Art">
               <div class="pack-151-badge">151</div>
             </div>
             <div class="pack-crimp-bottom"></div>
@@ -366,7 +364,6 @@ HTML
   </div>
 
   <script>
-    // Direct Pokémon TCG Card Image URLs
     const cardDatabase = [
       { id: '1', name: 'Bulbasaur', image: 'https://images.pokemontcg.io/sv3pt5/1.png' },
       { id: '4', name: 'Charmander', image: 'https://images.pokemontcg.io/sv3pt5/4.png' },
@@ -384,8 +381,19 @@ HTML
       { id: '200', name: 'Blastoise ex', image: 'https://images.pokemontcg.io/sv3pt5/200.png' }
     ];
 
-    let collection = JSON.parse(localStorage.getItem('pkm151_collection')) || [];
-    let binderSlots = JSON.parse(localStorage.getItem('pkm151_binder_4x4')) || Array(16).fill(null);
+    let collection = [];
+    try {
+      collection = JSON.parse(localStorage.getItem('pkm151_collection')) || [];
+    } catch (e) {
+      collection = [];
+    }
+
+    let binderSlots = [];
+    try {
+      binderSlots = JSON.parse(localStorage.getItem('pkm151_binder_4x4')) || Array(16).fill(null);
+    } catch (e) {
+      binderSlots = Array(16).fill(null);
+    }
 
     let currentPack = [];
     let cardsRemaining = 10;
@@ -470,9 +478,9 @@ HTML
       document.getElementById('status').innerText = "Ready to open another pack!";
     }
 
-    /* --- BINDER DRAG & DROP LOGIC --- */
     function renderBinder() {
       const binderGrid = document.getElementById('binder-grid');
+      if (!binderGrid) return;
       binderGrid.innerHTML = '';
 
       for (let i = 0; i < 16; i++) {
@@ -505,6 +513,7 @@ HTML
       }
 
       const trayGrid = document.getElementById('tray-grid');
+      if (!trayGrid) return;
       trayGrid.innerHTML = '';
 
       const unplacedCards = collection.filter(item => !binderSlots.includes(item.instanceId));
@@ -561,6 +570,7 @@ HTML
 
     function renderDex() {
       const dexGrid = document.getElementById('dex-grid');
+      if (!dexGrid) return;
       dexGrid.innerHTML = '';
 
       const ownedCardIds = new Set(collection.map(c => c.cardId));
@@ -576,7 +586,10 @@ HTML
         dexGrid.appendChild(cardDiv);
       });
 
-      document.querySelector('#dex-tab h2').innerText = `151 Set Collection (${totalOwned}/${cardDatabase.length})`;
+      const header = document.querySelector('#dex-tab h2');
+      if (header) {
+        header.innerText = `151 Set Collection (${totalOwned}/${cardDatabase.length})`;
+      }
     }
 
     function switchTab(tabId, evt) {
