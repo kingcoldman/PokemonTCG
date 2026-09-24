@@ -1,481 +1,761 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokémon TCG Pocket: 151 Edition</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon 151 Pocket Pack Opening</title>
   <style>
     :root {
-      --bg-dark: #1e1e24;
-      --card-width: 110px;
-      --card-height: 154px;
-      --fire-color: #ff6b6b;
-      --water-color: #4ecdc4;
-      --grass-color: #51cf66;
-      --electric-color: #fcc419;
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --accent-color: #ffcb05;
+      --accent-blue: #2a75bb;
+      --text-color: #f0f6fc;
+      --text-muted: #8b949e;
     }
 
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       user-select: none;
     }
 
     body {
-      margin: 0;
-      padding: 0;
-      background: #0f1016;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #fff;
+      background-color: var(--bg-color);
+      color: var(--text-color);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    /* Top Stats Bar */
+    /* Header */
     header {
-      width: 100%;
-      max-width: 900px;
-      background: #181920;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid #333;
-    }
-
-    .score-box {
-      display: flex;
-      gap: 20px;
-      font-size: 1.1rem;
-      font-weight: bold;
-    }
-
-    /* Main Battle Arena */
-    #battlefield {
-      width: 100%;
-      max-width: 900px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      background: #1f242d;
       padding: 15px;
-      gap: 15px;
-      background: radial-gradient(circle, #1a1c29 0%, #0c0d12 100%);
-    }
-
-    .player-zone {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .bench-row {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      min-height: calc(var(--card-height) + 10px);
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 8px;
-      padding: 5px;
-      border: 1px dashed #444;
-    }
-
-    .active-row {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: calc(var(--card-height) + 20px);
-    }
-
-    /* Card Styling */
-    .card {
-      width: var(--card-width);
-      height: var(--card-height);
-      background: #2a2d3d;
-      border-radius: 8px;
-      border: 2px solid #555;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 6px;
-      cursor: pointer;
-      position: relative;
-      transition: transform 0.2s, border-color 0.2s;
+      text-align: center;
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      z-index: 10;
     }
 
-    .card:hover {
-      transform: translateY(-4px);
+    header h1 {
+      font-size: 1.5rem;
+      color: var(--accent-color);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
     }
 
-    .card.selected {
-      border-color: #fcc419;
-      box-shadow: 0 0 12px #fcc419;
+    /* Main Content Area */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      position: relative;
     }
 
-    .card-header {
+    .tab-content {
+      display: none;
+      height: 100%;
+    }
+
+    .tab-content.active {
       display: flex;
-      justify-content: space-between;
-      font-weight: bold;
-      font-size: 0.8rem;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .card-title {
+    /* Packs View */
+    .pack-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 20px;
+    }
+
+    .pack-wrapper {
+      width: 220px;
+      height: 340px;
+      background: linear-gradient(135deg, #cc0000 0%, #ff5959 50%, #cc0000 100%);
+      border-radius: 12px;
+      border: 4px solid var(--accent-color);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.7), 0 0 15px rgba(255, 203, 5, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 10px;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .pack-wrapper:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.8), 0 0 25px rgba(255, 203, 5, 0.7);
+    }
+
+    .pack-title {
+      font-weight: 900;
+      font-size: 1.8rem;
+      color: #fff;
+      text-shadow: 2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000;
+    }
+
+    .pack-art {
+      width: 130px;
+      height: 130px;
+      background: radial-gradient(circle, #fff 0%, #ffcb05 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    }
+
+    .pack-art img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+    }
+
+    .pack-subtitle {
+      font-weight: bold;
+      color: #fff;
+      background: rgba(0,0,0,0.6);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+    }
+
+    .pack-stats {
+      text-align: center;
+      background: var(--card-bg);
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: 1px solid #30363d;
+    }
+
+    .pack-count {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--accent-color);
+    }
+
+    .timer {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+    }
+
+    .btn {
+      background: linear-gradient(180deg, var(--accent-color) 0%, #e6b800 100%);
+      color: #000;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 6px 15px rgba(255, 203, 5, 0.4);
+    }
+
+    .btn:disabled {
+      background: #484f58;
+      color: #8b949e;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Pokédex View */
+    .pokedex-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 15px;
+      width: 100%;
+      max-width: 1000px;
+      padding-bottom: 80px;
+    }
+
+    .pokedex-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      border: 1px solid #30363d;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      transition: transform 0.2s ease;
+    }
+
+    .pokedex-card:hover {
+      transform: scale(1.05);
+      z-index: 2;
+    }
+
+    .pokedex-card img {
+      width: 100%;
+      height: 130px;
+      object-fit: contain;
+      filter: grayscale(100%) brightness(0.2);
+      transition: filter 0.3s ease;
+    }
+
+    .pokedex-card.owned img {
+      filter: grayscale(0%) brightness(1);
+    }
+
+    .pokedex-card .card-num {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: bold;
+    }
+
+    .pokedex-card .card-name {
       font-size: 0.75rem;
+      margin-top: 6px;
+      text-align: center;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-
-    .card-hp {
-      color: #ff6b6b;
-    }
-
-    .card-art {
       width: 100%;
-      height: 60px;
+    }
+
+    /* Opening Overlay (Pokémon TCGP Style) */
+    .opening-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(5, 7, 10, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .opening-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .rip-pack-container {
+      position: relative;
+      width: 260px;
+      height: 400px;
+      cursor: pointer;
+    }
+
+    .pack-rip-top {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 70px;
+      background: linear-gradient(135deg, #cc0000 0%, #ff5959 100%);
+      border-radius: 12px 12px 0 0;
+      border: 4px solid var(--accent-color);
+      border-bottom: 2px dashed #000;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      z-index: 2;
+    }
+
+    .pack-rip-bottom {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 330px;
+      background: linear-gradient(135deg, #a00000 0%, #cc0000 100%);
+      border-radius: 0 0 12px 12px;
+      border: 4px solid var(--accent-color);
+      border-top: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    .rip-instruction {
+      color: #fff;
+      font-weight: bold;
+      margin-top: 20px;
+      text-align: center;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.5; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1.02); }
+      100% { opacity: 0.5; transform: scale(0.98); }
+    }
+
+    .ripped .pack-rip-top {
+      transform: translateY(-80px) rotate(-15deg);
+      opacity: 0;
+    }
+
+    /* Revealed Cards Stage */
+    .cards-stage {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .revealed-card {
+      width: 140px;
+      height: 195px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-style: preserve-3d;
+    }
+
+    .revealed-card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+    }
+
+    .card-back {
+      background: #1e232a;
+      border: 2px solid var(--accent-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-back::after {
+      content: "Pokémon";
+      color: var(--accent-color);
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .card-front {
+      transform: rotateY(180deg);
       background-size: cover;
       background-position: center;
-      border-radius: 4px;
-      background-color: #111;
+      border: 2px solid #fff;
     }
 
-    .card-body {
-      font-size: 0.65rem;
-      text-align: center;
-      background: rgba(0,0,0,0.3);
-      padding: 4px;
-      border-radius: 4px;
+    .card-front.rare {
+      box-shadow: 0 0 15px rgba(255, 203, 5, 0.8);
+      border-color: var(--accent-color);
     }
 
-    .energy-badges {
-      display: flex;
-      gap: 2px;
-      margin-top: 2px;
-      justify-content: center;
+    .close-btn {
+      margin-top: 20px;
+      display: none;
     }
 
-    .badge {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .fire { background: var(--fire-color); }
-    .water { background: var(--water-color); }
-    .grass { background: var(--grass-color); }
-    .electric { background: var(--electric-color); }
-
-    /* Action Toolbar & Hand */
-    .controls {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin: 10px 0;
-    }
-
-    button {
-      background: #3b5bdb;
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    button:hover {
-      background: #4c6ef5;
-    }
-
-    button:disabled {
-      background: #444;
-      cursor: not-allowed;
-    }
-
-    #hand {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      overflow-x: auto;
-      padding: 10px;
-      min-height: calc(var(--card-height) + 20px);
-      background: #14151d;
-      border-top: 1px solid #333;
+    /* Hotbar Navigation */
+    nav.hotbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
       width: 100%;
-      max-width: 900px;
+      background: #161b22;
+      border-top: 1px solid #30363d;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 10;
     }
 
-    /* Modal / Alert Overlay */
-    #log-zone {
-      background: #111;
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 0.85rem;
-      height: 50px;
-      overflow-y: auto;
-      color: #aaa;
-      border: 1px solid #333;
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: bold;
+      width: 33%;
+      transition: color 0.2s ease;
+    }
+
+    .nav-item.active {
+      color: var(--accent-color);
+    }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+      margin-bottom: 4px;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h2>Pokémon TCG Pocket (Set 151)</h2>
-    <div class="score-box">
-      <span>You: <span id="player-score">0</span>/3 Points</span>
-      <span>Opponent: <span id="ai-score">0</span>/3 Points</span>
-    </div>
+    <h1>Pokémon 151 Card Pocket</h1>
   </header>
 
-  <div id="battlefield">
-    <!-- AI Field -->
-    <div class="player-zone">
-      <small style="color: #aaa;">OPPONENT BENCH</small>
-      <div id="ai-bench" class="bench-row"></div>
-      <div id="ai-active" class="active-row"></div>
+  <main>
+    <!-- Tab 1: Packs -->
+    <div id="tab-packs" class="tab-content active">
+      <div class="pack-container">
+        <div class="pack-wrapper" id="pack-graphic">
+          <div class="pack-title">151</div>
+          <div class="pack-art">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" alt="Charizard">
+          </div>
+          <div class="pack-subtitle">SCARLET & VIOLET</div>
+        </div>
+
+        <div class="pack-stats">
+          <div class="pack-count">Available Packs: <span id="pack-qty">1</span>/10</div>
+          <div class="timer" id="timer-text">Next pack in: 59m 59s</div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn" id="btn-open-1" onclick="startOpening(1)">Open 1</button>
+          <button class="btn" id="btn-open-10" onclick="startOpening(10)">Open 10</button>
+        </div>
+      </div>
     </div>
 
-    <!-- Battle Log -->
-    <div id="log-zone">Welcome to Pokémon TCG Pocket (Set 151)! Tap 'Attach Energy' and 'Attack' to battle.</div>
-
-    <!-- Player Field -->
-    <div class="player-zone">
-      <div id="player-active" class="active-row"></div>
-      <small style="color: #aaa;">YOUR BENCH (Max 3)</small>
-      <div id="player-bench" class="bench-row"></div>
+    <!-- Tab 2: Pokédex -->
+    <div id="tab-pokedex" class="tab-content">
+      <div class="pokedex-grid" id="pokedex-grid"></div>
     </div>
+  </main>
+
+  <!-- Opening Scene Animation Overlay -->
+  <div class="opening-overlay" id="opening-overlay">
+    <div class="rip-pack-container" id="rip-container" onclick="ripPack()">
+      <div class="pack-rip-top"></div>
+      <div class="pack-rip-bottom">
+        <div class="pack-title" style="color:#fff;">151</div>
+      </div>
+    </div>
+    <div class="rip-instruction" id="rip-instruction">Click Pack to Rip Open!</div>
+
+    <div class="cards-stage" id="cards-stage"></div>
+    <button class="btn close-btn" id="btn-collect" onclick="closeOpening()">Collect Cards</button>
   </div>
 
-  <!-- Command Buttons -->
-  <div class="controls">
-    <button id="attach-btn" onclick="attachEnergy()">Attach Turn Energy (+1)</button>
-    <button id="attack-btn" onclick="playerAttack()">Attack!</button>
-    <button id="end-turn-btn" onclick="endTurn()">End Turn</button>
-  </div>
-
-  <!-- Player Hand -->
-  <div id="hand"></div>
+  <!-- Hotbar Navigation -->
+  <nav class="hotbar">
+    <div class="nav-item active" onclick="switchTab('packs', this)">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16zM6 6h12v4H6zm0 6h12v6H6z"/></svg>
+      Packs
+    </div>
+    <div class="nav-item" onclick="switchTab('pokedex', this)">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/></svg>
+      Pokédex
+    </div>
+  </nav>
 
   <script>
-    // --- SET 151 CARD DATABASE ---
-    const CARD_SET_151 = [
-      { id: 1, name: "Bulbasaur", hp: 70, type: "grass", energyCost: 1, damage: 20, attackName: "Vine Whip", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" },
-      { id: 4, name: "Charmander", hp: 60, type: "fire", energyCost: 1, damage: 20, attackName: "Ember", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png" },
-      { id: 7, name: "Squirtle", hp: 60, type: "water", energyCost: 1, damage: 20, attackName: "Water Gun", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png" },
-      { id: 25, name: "Pikachu", hp: 60, type: "electric", energyCost: 1, damage: 30, attackName: "Thunder Shock", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" },
-      { id: 6, name: "Charizard ex", hp: 180, type: "fire", energyCost: 2, damage: 80, attackName: "Slash", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" },
-      { id: 9, name: "Blastoise ex", hp: 180, type: "water", energyCost: 2, damage: 80, attackName: "Hydro Pump", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png" },
-      { id: 3, name: "Venusaur ex", hp: 190, type: "grass", energyCost: 2, damage: 70, attackName: "Giant Bloom", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/3.png" },
-      { id: 150, name: "Mewtwo ex", hp: 150, type: "electric", energyCost: 2, damage: 60, attackName: "Psystrike", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png" }
+    // Real-life SV 151 Pokemon Set baseline array
+    const POKEMON_151 = [
+      { id: 1, name: "Bulbasaur", rarity: "Common" },
+      { id: 2, name: "Ivysaur", rarity: "Uncommon" },
+      { id: 3, name: "Venusaur EX", rarity: "Double Rare" },
+      { id: 4, name: "Charmander", rarity: "Common" },
+      { id: 5, name: "Charmeleon", rarity: "Uncommon" },
+      { id: 6, name: "Charizard EX", rarity: "Double Rare" },
+      { id: 7, name: "Squirtle", rarity: "Common" },
+      { id: 8, name: "Wartortle", rarity: "Uncommon" },
+      { id: 9, name: "Blastoise EX", rarity: "Double Rare" },
+      { id: 10, name: "Caterpie", rarity: "Common" },
+      { id: 11, name: "Metapod", rarity: "Common" },
+      { id: 12, name: "Butterfree", rarity: "Uncommon" },
+      { id: 13, name: "Weedle", rarity: "Common" },
+      { id: 14, name: "Kakuna", rarity: "Common" },
+      { id: 15, name: "Beedrill", rarity: "Uncommon" },
+      { id: 16, name: "Pidgey", rarity: "Common" },
+      { id: 17, name: "Pidgeotto", rarity: "Common" },
+      { id: 18, name: "Pidgeot EX", rarity: "Double Rare" },
+      { id: 19, name: "Rattata", rarity: "Common" },
+      { id: 20, name: "Raticate", rarity: "Common" },
+      { id: 25, name: "Pikachu", rarity: "Common" },
+      { id: 26, name: "Raichu", rarity: "Uncommon" },
+      { id: 39, name: "Jigglypuff", rarity: "Common" },
+      { id: 40, name: "Wigglytuff EX", rarity: "Double Rare" },
+      { id: 52, name: "Meowth", rarity: "Common" },
+      { id: 54, name: "Psyduck", rarity: "Common" },
+      { id: 59, name: "Arcanine", rarity: "Uncommon" },
+      { id: 65, name: "Alakazam EX", rarity: "Double Rare" },
+      { id: 94, name: "Gengar", rarity: "Rare" },
+      { id: 129, name: "Magikarp", rarity: "Common" },
+      { id: 130, name: "Gyarados", rarity: "Rare" },
+      { id: 131, name: "Lapras", rarity: "Rare" },
+      { id: 132, name: "Ditto", rarity: "Rare" },
+      { id: 133, name: "Eevee", rarity: "Common" },
+      { id: 134, name: "Vaporeon", rarity: "Rare" },
+      { id: 135, name: "Jolteon", rarity: "Rare" },
+      { id: 136, name: "Flareon", rarity: "Rare" },
+      { id: 143, name: "Snorlax", rarity: "Rare" },
+      { id: 144, name: "Articuno", rarity: "Rare" },
+      { id: 145, name: "Zapdos EX", rarity: "Double Rare" },
+      { id: 146, name: "Moltres", rarity: "Rare" },
+      { id: 147, name: "Dratini", rarity: "Common" },
+      { id: 148, name: "Dragonair", rarity: "Uncommon" },
+      { id: 149, name: "Dragonite", rarity: "Rare" },
+      { id: 150, name: "Mewtwo", rarity: "Rare" },
+      { id: 151, name: "Mew EX", rarity: "Ultra Rare" }
     ];
 
-    // --- GAME STATE ---
-    let player = { hand: [], bench: [], active: null, score: 0, attachedEnergyThisTurn: false };
-    let ai = { hand: [], bench: [], active: null, score: 0 };
-    let selectedCardIndex = null;
-    let isPlayerTurn = true;
-
-    // --- HELPER FUNCTIONS ---
-    function log(msg) {
-      const logZone = document.getElementById("log-zone");
-      logZone.innerHTML += `<br>${msg}`;
-      logZone.scrollTop = logZone.scrollHeight;
-    }
-
-    function createCardInstance(template) {
-      return { ...template, currentHp: template.hp, attachedEnergy: 0, uid: Math.random() };
-    }
-
-    function drawCard(target) {
-      const randomCard = CARD_SET_151[Math.floor(Math.random() * CARD_SET_151.length)];
-      target.hand.push(createCardInstance(randomCard));
-    }
-
-    // --- INITIALIZATION ---
-    function initGame() {
-      // Draw 3 initial cards each
-      for (let i = 0; i < 3; i++) {
-        drawCard(player);
-        drawCard(ai);
+    // Helper to fill remaining set items dynamically if missing from standard 151
+    for (let i = 1; i <= 151; i++) {
+      if (!POKEMON_151.some(p => p.id === i)) {
+        POKEMON_151.push({ id: i, name: `Pokémon #${i}`, rarity: i % 5 === 0 ? "Uncommon" : "Common" });
       }
-      
-      // Auto-assign Active for AI
-      ai.active = ai.hand.pop();
-      
-      render();
-      log("Game started! Play a Pokémon to your active spot from your hand.");
+    }
+    POKEMON_151.sort((a, b) => a.id - b.id);
+
+    // Game State
+    let state = {
+      packs: 1,
+      maxPacks: 10,
+      nextPackTime: Date.now() + 3600000,
+      ownedCards: new Set(),
+      pendingOpeningCount: 0,
+      cardsToFlip: []
+    };
+
+    // Load Game State
+    function loadState() {
+      const saved = localStorage.getItem('poke_151_save');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        state.packs = parsed.packs;
+        state.nextPackTime = parsed.nextPackTime;
+        state.ownedCards = new Set(parsed.ownedCards);
+      }
+      checkTimer();
     }
 
-    // --- RENDER GAME BOARD ---
-    function render() {
-      // Scores
-      document.getElementById("player-score").innerText = player.score;
-      document.getElementById("ai-score").innerText = ai.score;
+    // Save Game State
+    function saveState() {
+      localStorage.setItem('poke_151_save', JSON.stringify({
+        packs: state.packs,
+        nextPackTime: state.nextPackTime,
+        ownedCards: Array.from(state.ownedCards)
+      }));
+    }
 
-      // Render Player Hand
-      const handEl = document.getElementById("hand");
-      handEl.innerHTML = "";
-      player.hand.forEach((card, idx) => {
-        handEl.appendChild(createCardUI(card, () => selectHandCard(idx), idx === selectedCardIndex));
+    // Timer Loop
+    function checkTimer() {
+      const now = Date.now();
+      if (now >= state.nextPackTime) {
+        if (state.packs < state.maxPacks) {
+          const addedPacks = Math.floor((now - state.nextPackTime) / 3600000) + 1;
+          state.packs = Math.min(state.maxPacks, state.packs + addedPacks);
+          state.nextPackTime = now + 3600000;
+        }
+      }
+      updateUI();
+    }
+    setInterval(checkTimer, 1000);
+
+    // Update UI Elements
+    function updateUI() {
+      document.getElementById('pack-qty').innerText = state.packs;
+      
+      const btn1 = document.getElementById('btn-open-1');
+      const btn10 = document.getElementById('btn-open-10');
+      
+      btn1.disabled = state.packs < 1;
+      btn10.disabled = state.packs < 10;
+
+      if (state.packs >= state.maxPacks) {
+        document.getElementById('timer-text').innerText = "Pack Stack Full!";
+      } else {
+        const diff = Math.max(0, state.nextPackTime - Date.now());
+        const mins = Math.floor(diff / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        document.getElementById('timer-text').innerText = `Next pack in: ${mins}m ${secs}s`;
+      }
+    }
+
+    // Navigation Switch
+    function switchTab(tabName, el) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+      el.classList.add('active');
+
+      if (tabName === 'pokedex') renderPokedex();
+    }
+
+    // Render Pokédex Grid
+    function renderPokedex() {
+      const grid = document.getElementById('pokedex-grid');
+      grid.innerHTML = '';
+
+      POKEMON_151.forEach(card => {
+        const isOwned = state.ownedCards.has(card.id);
+        const cardEl = document.createElement('div');
+        cardEl.className = `pokedex-card ${isOwned ? 'owned' : ''}`;
+        
+        // Official artwork URL
+        const imgUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${card.id}.png`;
+
+        cardEl.innerHTML = `
+          <span class="card-num">#${String(card.id).padStart(3, '0')}</span>
+          <img src="${imgUrl}" alt="${card.name}">
+          <div class="card-name">${isOwned ? card.name : '???'}</div>
+        `;
+        grid.appendChild(cardEl);
+      });
+    }
+
+    // Pull Rates Engine
+    function getRandomCard() {
+      const rand = Math.random() * 100;
+      let rarity = "Common";
+      
+      if (rand < 2) rarity = "Ultra Rare";
+      else if (rand < 10) rarity = "Double Rare";
+      else if (rand < 25) rarity = "Rare";
+      else if (rand < 55) rarity = "Uncommon";
+
+      const matching = POKEMON_151.filter(c => c.rarity === rarity);
+      if (matching.length === 0) return POKEMON_151[Math.floor(Math.random() * POKEMON_151.length)];
+      return matching[Math.floor(Math.random() * matching.length)];
+    }
+
+    // Start Opening Sequence
+    function startOpening(count) {
+      if (state.packs < count) return;
+      state.packs -= count;
+      state.pendingOpeningCount = count;
+      saveState();
+      updateUI();
+
+      // Generate Cards (5 cards per pack)
+      state.cardsToFlip = [];
+      for (let p = 0; p < count; p++) {
+        for (let c = 0; c < 5; c++) {
+          state.cardsToFlip.push(getRandomCard());
+        }
+      }
+
+      // Show Rip Stage
+      const overlay = document.getElementById('opening-overlay');
+      const ripContainer = document.getElementById('rip-container');
+      const cardsStage = document.getElementById('cards-stage');
+      
+      ripContainer.classList.remove('ripped');
+      ripContainer.style.display = 'block';
+      document.getElementById('rip-instruction').style.display = 'block';
+      document.getElementById('btn-collect').style.display = 'none';
+      cardsStage.innerHTML = '';
+      
+      overlay.classList.add('active');
+    }
+
+    // Rip Pack Animation
+    function ripPack() {
+      const ripContainer = document.getElementById('rip-container');
+      if (ripContainer.classList.contains('ripped')) return;
+
+      ripContainer.classList.add('ripped');
+      document.getElementById('rip-instruction').style.display = 'none';
+
+      setTimeout(() => {
+        ripContainer.style.display = 'none';
+        revealCardsStage();
+      }, 600);
+    }
+
+    // Render Cards to Flip Stage
+    function revealCardsStage() {
+      const stage = document.getElementById('cards-stage');
+      stage.innerHTML = '';
+
+      state.cardsToFlip.forEach((card) => {
+        state.ownedCards.add(card.id); // Add to pokedex
+
+        const cardEl = document.createElement('div');
+        cardEl.className = 'revealed-card';
+        const isRare = card.rarity === 'Double Rare' || card.rarity === 'Ultra Rare';
+        
+        const imgUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${card.id}.png`;
+
+        cardEl.innerHTML = `
+          <div class="card-inner">
+            <div class="card-back"></div>
+            <div class="card-front ${isRare ? 'rare' : ''}" style="background-image: radial-gradient(circle, #fff 0%, #edf2f7 100%);">
+              <img src="${imgUrl}" style="width:100%; height:80%; object-fit:contain; margin-top:5px;">
+              <div style="color:#000; font-size:0.75rem; font-weight:bold; margin-top:2px;">${card.name}</div>
+            </div>
+          </div>
+        `;
+
+        cardEl.onclick = () => {
+          cardEl.classList.add('flipped');
+          checkAllFlipped();
+        };
+
+        stage.appendChild(cardEl);
       });
 
-      // Render Player Active
-      const pActiveEl = document.getElementById("player-active");
-      pActiveEl.innerHTML = "";
-      if (player.active) {
-        pActiveEl.appendChild(createCardUI(player.active));
-      } else {
-        pActiveEl.innerHTML = `<div style="color: #666; border: 2px dashed #444; padding: 20px; border-radius: 8px;">Play Active Pokémon</div>`;
-      }
-
-      // Render Player Bench
-      const pBenchEl = document.getElementById("player-bench");
-      pBenchEl.innerHTML = "";
-      player.bench.forEach(card => pBenchEl.appendChild(createCardUI(card)));
-
-      // Render AI Active
-      const aiActiveEl = document.getElementById("ai-active");
-      aiActiveEl.innerHTML = "";
-      if (ai.active) {
-        aiActiveEl.appendChild(createCardUI(ai.active));
-      }
-
-      // Render AI Bench
-      const aiBenchEl = document.getElementById("ai-bench");
-      aiBenchEl.innerHTML = "";
-      ai.bench.forEach(card => aiBenchEl.appendChild(createCardUI(card)));
-
-      // Control States
-      document.getElementById("attach-btn").disabled = !isPlayerTurn || player.attachedEnergyThisTurn || !player.active;
-      document.getElementById("attack-btn").disabled = !isPlayerTurn || !player.active || player.active.attachedEnergy < player.active.energyCost;
+      saveState();
     }
 
-    function createCardUI(card, onClick, isSelected = false) {
-      const cardDiv = document.createElement("div");
-      cardDiv.className = `card ${isSelected ? 'selected' : ''}`;
-      if (onClick) cardDiv.onclick = onClick;
-
-      cardDiv.innerHTML = `
-        <div class="card-header">
-          <span class="card-title">${card.name}</span>
-          <span class="card-hp">${card.currentHp}/${card.hp}</span>
-        </div>
-        <div class="card-art" style="background-image: url('${card.image}')"></div>
-        <div class="card-body">
-          <div><strong>${card.attackName}</strong> (${card.damage})</div>
-          <div class="energy-badges">
-            ${'<span class="badge ' + card.type + '"></span>'.repeat(card.attachedEnergy)}
-          </div>
-        </div>
-      `;
-      return cardDiv;
-    }
-
-    // --- USER INTERACTIONS ---
-    function selectHandCard(index) {
-      if (!isPlayerTurn) return;
-
-      if (!player.active) {
-        // First card played becomes Active
-        player.active = player.hand.splice(index, 1)[0];
-        log(`You sent out <strong>${player.active.name}</strong> as your Active Pokémon!`);
-      } else if (player.bench.length < 3) {
-        // Subsequent cards go to Bench
-        const benched = player.hand.splice(index, 1)[0];
-        player.bench.push(benched);
-        log(`You placed <strong>${benched.name}</strong> on your Bench.`);
-      } else {
-        log("Bench is full!");
-      }
-      selectedCardIndex = null;
-      render();
-    }
-
-    function attachEnergy() {
-      if (player.active && !player.attachedEnergyThisTurn) {
-        player.active.attachedEnergy += 1;
-        player.attachedEnergyThisTurn = true;
-        log(`Attached Energy to <strong>${player.active.name}</strong>.`);
-        render();
+    function checkAllFlipped() {
+      const allCards = document.querySelectorAll('.revealed-card');
+      const allFlipped = Array.from(allCards).every(c => c.classList.contains('flipped'));
+      if (allFlipped) {
+        document.getElementById('btn-collect').style.display = 'inline-block';
       }
     }
 
-    function playerAttack() {
-      if (!player.active || !ai.active) return;
-
-      log(`Your <strong>${player.active.name}</strong> used <strong>${player.active.attackName}</strong> for ${player.active.damage} damage!`);
-      ai.active.currentHp -= player.active.damage;
-
-      if (ai.active.currentHp <= 0) {
-        log(`Opponent's <strong>${ai.active.name}</strong> was knocked out! You gain 1 Point!`);
-        player.score += 1;
-        ai.active = ai.bench.pop() || null;
-
-        if (player.score >= 3) {
-          alert("🎉 YOU WIN THE MATCH!");
-          location.reload();
-          return;
-        }
-      }
-
-      endTurn();
+    function closeOpening() {
+      document.getElementById('opening-overlay').classList.remove('active');
     }
 
-    function endTurn() {
-      isPlayerTurn = false;
-      player.attachedEnergyThisTurn = false;
-      log("<strong>--- Opponent's Turn ---</strong>");
-      
-      setTimeout(aiTurn, 1200);
-    }
-
-    // --- AI LOGIC ---
-    function aiTurn() {
-      // 1. Draw card
-      drawCard(ai);
-
-      // 2. Play card to Bench if available
-      if (ai.hand.length > 0 && ai.bench.length < 3) {
-        ai.bench.push(ai.hand.pop());
-      }
-
-      // 3. Attach energy
-      if (ai.active) {
-        ai.active.attachedEnergy += 1;
-      }
-
-      // 4. Attack if possible
-      if (ai.active && ai.active.attachedEnergy >= ai.active.energyCost && player.active) {
-        log(`Opponent's <strong>${ai.active.name}</strong> used <strong>${ai.active.attackName}</strong> dealing ${ai.active.damage} damage!`);
-        player.active.currentHp -= ai.active.damage;
-
-        if (player.active.currentHp <= 0) {
-          log(`Your <strong>${player.active.name}</strong> was knocked out! Opponent gains 1 Point!`);
-          ai.score += 1;
-          player.active = player.bench.pop() || null;
-
-          if (ai.score >= 3) {
-            alert("❌ GAME OVER - Opponent Won!");
-            location.reload();
-            return;
-          }
-        }
-      }
-
-      // Start Player Turn
-      isPlayerTurn = true;
-      drawCard(player);
-      log("<strong>--- Your Turn ---</strong>");
-      render();
-    }
-
-    // Start
-    initGame();
+    // Initialize
+    loadState();
   </script>
 </body>
 </html>
