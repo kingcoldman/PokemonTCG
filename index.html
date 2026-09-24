@@ -1,622 +1,481 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pokémon TCG 151 Collector & Pack Simulator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokémon TCG Pocket: 151 Edition</title>
   <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #121218;
-      color: #ffffff;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
+    :root {
+      --bg-dark: #1e1e24;
+      --card-width: 110px;
+      --card-height: 154px;
+      --fire-color: #ff6b6b;
+      --water-color: #4ecdc4;
+      --grass-color: #51cf66;
+      --electric-color: #fcc419;
+    }
+
+    * {
+      box-sizing: border-box;
       user-select: none;
-      overflow-x: hidden;
     }
 
-    h1 {
-      color: #ffcb05;
-      text-shadow: 2px 2px #3b4cca;
-      margin-bottom: 5px;
-    }
-
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .nav-btn {
-      background-color: #2a2a38;
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0f1016;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: #fff;
-      border: 2px solid #3b4cca;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* Top Stats Bar */
+    header {
+      width: 100%;
+      max-width: 900px;
+      background: #181920;
       padding: 10px 20px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .nav-btn.active, .nav-btn:hover {
-      background-color: #ffcb05;
-      color: #121218;
-    }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    /* --- PACK STYLING --- */
-    .pack-stage {
-      width: 240px;
-      height: 360px;
-      margin: 10px auto;
-    }
-
-    .booster-pack {
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #1e295d, #3b4cca, #e60012);
-      border: 4px solid #ffcb05;
-      border-radius: 14px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: space-between;
-      position: relative;
-      overflow: hidden;
+      align-items: center;
+      border-bottom: 2px solid #333;
     }
 
-    .pack-crimp-top, .pack-crimp-bottom {
+    .score-box {
+      display: flex;
+      gap: 20px;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    /* Main Battle Arena */
+    #battlefield {
       width: 100%;
-      height: 20px;
-      background: repeating-linear-gradient(90deg, #c0c0c0, #c0c0c0 5px, #e8e8e8 5px, #e8e8e8 10px);
-      border-bottom: 2px solid #888;
-      z-index: 2;
-    }
-    .pack-crimp-bottom {
-      border-bottom: none;
-      border-top: 2px solid #888;
-    }
-
-    .pack-art-container {
+      max-width: 900px;
+      flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      padding: 15px;
+      gap: 15px;
+      background: radial-gradient(circle, #1a1c29 0%, #0c0d12 100%);
+    }
+
+    .player-zone {
+      display: flex;
+      flex-direction: column;
       gap: 10px;
     }
 
-    .pack-title {
-      font-size: 24px;
-      font-weight: 900;
-      color: #ffcb05;
-      text-shadow: 2px 2px #000;
-      letter-spacing: 1px;
-    }
-
-    .pack-151-badge {
-      background: #e60012;
-      color: #ffffff;
-      font-size: 30px;
-      font-weight: 900;
-      padding: 6px 25px;
+    .bench-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      min-height: calc(var(--card-height) + 10px);
+      background: rgba(255, 255, 255, 0.03);
       border-radius: 8px;
-      border: 3px solid #ffffff;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      text-shadow: 2px 2px 0px #000;
+      padding: 5px;
+      border: 1px dashed #444;
     }
 
-    /* --- REVEAL AREA --- */
-    #reveal-area {
-      display: none;
-      flex-direction: column;
+    .active-row {
+      display: flex;
+      justify-content: center;
       align-items: center;
-      margin-top: 20px;
+      min-height: calc(var(--card-height) + 20px);
     }
 
-    .card-stack {
-      position: relative;
-      width: 220px;
-      height: 310px;
-      margin-bottom: 15px;
-    }
-
-    /* --- PURE CODE CARD STYLING --- */
-    .card-wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      transition: transform 0.5s ease, opacity 0.5s ease;
-    }
-
-    .card-wrapper.slide-out {
-      transform: translateX(140%) rotate(25deg);
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .pokemon-card {
-      width: 100%;
-      height: 100%;
-      border-radius: 12px;
-      border: 8px solid #ffcb05;
-      background: #2a2a38;
+    /* Card Styling */
+    .card {
+      width: var(--card-width);
+      height: var(--card-height);
+      background: #2a2d3d;
+      border-radius: 8px;
+      border: 2px solid #555;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 8px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+      padding: 6px;
       cursor: pointer;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    .card.selected {
+      border-color: #fcc419;
+      box-shadow: 0 0 12px #fcc419;
     }
 
     .card-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      font-weight: 900;
-      color: #121218;
-      background: rgba(255,255,255,0.9);
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 13px;
-    }
-
-    .card-art-box {
-      width: 100%;
-      height: 160px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 3px solid #ffffff;
-      box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
-    }
-
-    .card-art-emoji {
-      font-size: 65px;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-    }
-
-    .card-footer {
-      background: rgba(0,0,0,0.75);
-      color: #ffffff;
-      padding: 6px;
-      border-radius: 6px;
-      font-size: 11px;
       font-weight: bold;
-      letter-spacing: 0.5px;
+      font-size: 0.8rem;
     }
 
-    /* Elemental Backgrounds */
-    .type-grass { background: linear-gradient(135deg, #51df39, #1b6313); }
-    .type-fire { background: linear-gradient(135deg, #ff5330, #961b00); }
-    .type-water { background: linear-gradient(135deg, #389bff, #003e8a); }
-    .type-electric { background: linear-gradient(135deg, #ffd833, #9e8200); }
-    .type-psychic { background: linear-gradient(135deg, #ff33a8, #7a004b); }
-    .type-colorless { background: linear-gradient(135deg, #d1d1d1, #575757); }
-    .type-ex { background: linear-gradient(135deg, #ff007f, #7f00ff, #00d4ff); border-color: #ffffff; }
-
-    /* --- BINDER GRID --- */
-    .binder-container {
-      max-width: 680px;
-      margin: 0 auto;
-      background: #1e1e28;
-      border: 4px solid #3b4cca;
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.7);
-    }
-
-    .binder-4x4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-
-    .binder-slot {
-      width: 100%;
-      aspect-ratio: 2.5 / 3.5;
-      background: #121218;
-      border: 2px dashed #444455;
-      border-radius: 8px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .card-title {
+      font-size: 0.75rem;
+      white-space: nowrap;
       overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .binder-slot.drag-over {
-      border-color: #ffcb05;
-      background-color: #2a2a38;
+    .card-hp {
+      color: #ff6b6b;
     }
 
-    .slot-number {
-      position: absolute;
-      font-size: 12px;
-      color: #555566;
-      pointer-events: none;
+    .card-art {
+      width: 100%;
+      height: 60px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 4px;
+      background-color: #111;
     }
 
-    .tray-area {
-      margin-top: 25px;
-      background: #2a2a38;
-      border-radius: 10px;
-      padding: 15px;
+    .card-body {
+      font-size: 0.65rem;
+      text-align: center;
+      background: rgba(0,0,0,0.3);
+      padding: 4px;
+      border-radius: 4px;
     }
 
-    .tray-grid {
+    .energy-badges {
       display: flex;
-      flex-wrap: wrap;
+      gap: 2px;
+      margin-top: 2px;
+      justify-content: center;
+    }
+
+    .badge {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .fire { background: var(--fire-color); }
+    .water { background: var(--water-color); }
+    .grass { background: var(--grass-color); }
+    .electric { background: var(--electric-color); }
+
+    /* Action Toolbar & Hand */
+    .controls {
+      display: flex;
       gap: 10px;
       justify-content: center;
-      min-height: 120px;
-      margin-top: 10px;
+      margin: 10px 0;
     }
 
-    /* Small card overrides for Binder/Tray/Dex */
-    .mini-card {
-      width: 90px;
-      height: 126px;
-      cursor: pointer;
-    }
-    .mini-card .pokemon-card { border-width: 3px; padding: 3px; border-radius: 6px; }
-    .mini-card .card-header { font-size: 8px; padding: 2px; }
-    .mini-card .card-art-box { height: 65px; border-width: 1px; }
-    .mini-card .card-art-emoji { font-size: 26px; }
-    .mini-card .card-footer { font-size: 7px; padding: 2px; }
-
-    /* --- DEX GRID --- */
-    .card-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .dex-card {
-      width: 100px;
-      height: 140px;
-    }
-    .dex-card .pokemon-card { border-width: 4px; padding: 4px; }
-    .dex-card .card-header { font-size: 9px; padding: 2px; }
-    .dex-card .card-art-box { height: 72px; border-width: 2px; }
-    .dex-card .card-art-emoji { font-size: 30px; }
-    .dex-card .card-footer { font-size: 8px; padding: 2px; }
-    .dex-card.unowned { filter: brightness(0.2) grayscale(1); }
-
-    .status {
-      font-size: 15px;
-      color: #00d26a;
-      margin-top: 10px;
-    }
-
-    .action-btn {
-      background-color: #ffcb05;
-      color: #121218;
+    button {
+      background: #3b5bdb;
+      color: white;
       border: none;
-      padding: 14px 32px;
-      font-size: 18px;
+      padding: 10px 18px;
+      border-radius: 6px;
       font-weight: bold;
-      border-radius: 8px;
       cursor: pointer;
-      margin-top: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      transition: background 0.2s;
     }
-    .action-btn:active { transform: scale(0.96); }
+
+    button:hover {
+      background: #4c6ef5;
+    }
+
+    button:disabled {
+      background: #444;
+      cursor: not-allowed;
+    }
+
+    #hand {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px;
+      min-height: calc(var(--card-height) + 20px);
+      background: #14151d;
+      border-top: 1px solid #333;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    /* Modal / Alert Overlay */
+    #log-zone {
+      background: #111;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      height: 50px;
+      overflow-y: auto;
+      color: #aaa;
+      border: 1px solid #333;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Pokémon 151 TCG Simulator</h1>
-  
-  <nav>
-    <button class="nav-btn active" onclick="switchTab('pack-tab', event)">Open Pack</button>
-    <button class="nav-btn" onclick="switchTab('binder-tab', event)">4x4 Binder</button>
-    <button class="nav-btn" onclick="switchTab('dex-tab', event)">Card Dex</button>
-  </nav>
+  <header>
+    <h2>Pokémon TCG Pocket (Set 151)</h2>
+    <div class="score-box">
+      <span>You: <span id="player-score">0</span>/3 Points</span>
+      <span>Opponent: <span id="ai-score">0</span>/3 Points</span>
+    </div>
+  </header>
 
-  <div id="status" class="status">Click 'Open Pack!' to rip open your booster!</div>
-
-  <!-- TAB 1: PACK SIMULATOR -->
-  <div id="pack-tab" class="tab-content active">
-    <div id="pack-container">
-      <div class="pack-stage">
-        <div class="booster-pack">
-          <div class="pack-crimp-top"></div>
-          <div class="pack-art-container">
-            <div class="pack-title">POKÉMON</div>
-            <div style="font-size: 60px;">🔮</div>
-            <div class="pack-151-badge">151</div>
-          </div>
-          <div class="pack-crimp-bottom"></div>
-        </div>
-      </div>
-      <button class="action-btn" onclick="openPackNow()">Open Pack!</button>
+  <div id="battlefield">
+    <!-- AI Field -->
+    <div class="player-zone">
+      <small style="color: #aaa;">OPPONENT BENCH</small>
+      <div id="ai-bench" class="bench-row"></div>
+      <div id="ai-active" class="active-row"></div>
     </div>
 
-    <div id="reveal-area">
-      <div id="card-stack" class="card-stack"></div>
-      <p id="card-counter-text">Tap top card to reveal the next one!</p>
-      <button id="reset-pack-btn" class="action-btn" onclick="resetPackView()" style="display:none;">Open Another Pack</button>
+    <!-- Battle Log -->
+    <div id="log-zone">Welcome to Pokémon TCG Pocket (Set 151)! Tap 'Attach Energy' and 'Attack' to battle.</div>
+
+    <!-- Player Field -->
+    <div class="player-zone">
+      <div id="player-active" class="active-row"></div>
+      <small style="color: #aaa;">YOUR BENCH (Max 3)</small>
+      <div id="player-bench" class="bench-row"></div>
     </div>
   </div>
 
-  <!-- TAB 2: 4x4 BINDER -->
-  <div id="binder-tab" class="tab-content">
-    <h2>4x4 Interactive Binder</h2>
-    <p style="font-size: 14px; color: #aaa;">Drag & drop cards into binder slots, or tap an unbound card to auto-place it!</p>
-    
-    <div class="binder-container">
-      <div id="binder-grid" class="binder-4x4"></div>
-    </div>
-
-    <div class="tray-area">
-      <h3>Unbound Cards</h3>
-      <p style="font-size: 12px; color: #888;">Cards you've opened that aren't placed yet:</p>
-      <div id="tray-grid" class="tray-grid"></div>
-    </div>
+  <!-- Command Buttons -->
+  <div class="controls">
+    <button id="attach-btn" onclick="attachEnergy()">Attach Turn Energy (+1)</button>
+    <button id="attack-btn" onclick="playerAttack()">Attack!</button>
+    <button id="end-turn-btn" onclick="endTurn()">End Turn</button>
   </div>
 
-  <!-- TAB 3: CARD DEX -->
-  <div id="dex-tab" class="tab-content">
-    <h2>151 Master Set</h2>
-    <div id="dex-grid" class="card-grid"></div>
-  </div>
+  <!-- Player Hand -->
+  <div id="hand"></div>
 
   <script>
-    const cardDatabase = [
-      { id: '1', name: 'Bulbasaur', type: 'grass', emoji: '🌱', hp: '70 HP' },
-      { id: '4', name: 'Charmander', type: 'fire', emoji: '🔥', hp: '70 HP' },
-      { id: '7', name: 'Squirtle', type: 'water', emoji: '💧', hp: '60 HP' },
-      { id: '25', name: 'Pikachu', type: 'electric', emoji: '⚡', hp: '60 HP' },
-      { id: '39', name: 'Jigglypuff', type: 'colorless', emoji: '🎤', hp: '60 HP' },
-      { id: '54', name: 'Psyduck', type: 'water', emoji: '🦆', hp: '70 HP' },
-      { id: '94', name: 'Gengar', type: 'psychic', emoji: '👻', hp: '130 HP' },
-      { id: '133', name: 'Eevee', type: 'colorless', emoji: '🦊', hp: '50 HP' },
-      { id: '143', name: 'Snorlax', type: 'colorless', emoji: '💤', hp: '150 HP' },
-      { id: '150', name: 'Mewtwo', type: 'psychic', emoji: '🧬', hp: '130 HP' },
-      { id: '151', name: 'Mew ex', type: 'ex', emoji: '✨', hp: '180 HP' },
-      { id: '198', name: 'Venusaur ex', type: 'ex', emoji: '🌺', hp: '340 HP' },
-      { id: '199', name: 'Charizard ex', type: 'ex', emoji: '🐉', hp: '330 HP' },
-      { id: '200', name: 'Blastoise ex', type: 'ex', emoji: '🌊', hp: '330 HP' }
+    // --- SET 151 CARD DATABASE ---
+    const CARD_SET_151 = [
+      { id: 1, name: "Bulbasaur", hp: 70, type: "grass", energyCost: 1, damage: 20, attackName: "Vine Whip", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" },
+      { id: 4, name: "Charmander", hp: 60, type: "fire", energyCost: 1, damage: 20, attackName: "Ember", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png" },
+      { id: 7, name: "Squirtle", hp: 60, type: "water", energyCost: 1, damage: 20, attackName: "Water Gun", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png" },
+      { id: 25, name: "Pikachu", hp: 60, type: "electric", energyCost: 1, damage: 30, attackName: "Thunder Shock", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" },
+      { id: 6, name: "Charizard ex", hp: 180, type: "fire", energyCost: 2, damage: 80, attackName: "Slash", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" },
+      { id: 9, name: "Blastoise ex", hp: 180, type: "water", energyCost: 2, damage: 80, attackName: "Hydro Pump", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png" },
+      { id: 3, name: "Venusaur ex", hp: 190, type: "grass", energyCost: 2, damage: 70, attackName: "Giant Bloom", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/3.png" },
+      { id: 150, name: "Mewtwo ex", hp: 150, type: "electric", energyCost: 2, damage: 60, attackName: "Psystrike", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png" }
     ];
 
-    let collection = [];
-    try {
-      collection = JSON.parse(localStorage.getItem('pkm151_collection')) || [];
-    } catch (e) { collection = []; }
+    // --- GAME STATE ---
+    let player = { hand: [], bench: [], active: null, score: 0, attachedEnergyThisTurn: false };
+    let ai = { hand: [], bench: [], active: null, score: 0 };
+    let selectedCardIndex = null;
+    let isPlayerTurn = true;
 
-    let binderSlots = [];
-    try {
-      binderSlots = JSON.parse(localStorage.getItem('pkm151_binder_4x4')) || Array(16).fill(null);
-    } catch (e) { binderSlots = Array(16).fill(null); }
+    // --- HELPER FUNCTIONS ---
+    function log(msg) {
+      const logZone = document.getElementById("log-zone");
+      logZone.innerHTML += `<br>${msg}`;
+      logZone.scrollTop = logZone.scrollHeight;
+    }
 
-    let currentPack = [];
-    let cardsRemaining = 10;
-    let draggedCardInstanceId = null;
+    function createCardInstance(template) {
+      return { ...template, currentHp: template.hp, attachedEnergy: 0, uid: Math.random() };
+    }
 
-    function buildCardHTML(card) {
-      return `
-        <div class="pokemon-card">
-          <div class="card-header">
-            <span>${card.name}</span>
-            <span>${card.hp}</span>
-          </div>
-          <div class="card-art-box type-${card.type}">
-            <div class="card-art-emoji">${card.emoji}</div>
-          </div>
-          <div class="card-footer">
-            #${card.id}/151 • ${card.type.toUpperCase()}
+    function drawCard(target) {
+      const randomCard = CARD_SET_151[Math.floor(Math.random() * CARD_SET_151.length)];
+      target.hand.push(createCardInstance(randomCard));
+    }
+
+    // --- INITIALIZATION ---
+    function initGame() {
+      // Draw 3 initial cards each
+      for (let i = 0; i < 3; i++) {
+        drawCard(player);
+        drawCard(ai);
+      }
+      
+      // Auto-assign Active for AI
+      ai.active = ai.hand.pop();
+      
+      render();
+      log("Game started! Play a Pokémon to your active spot from your hand.");
+    }
+
+    // --- RENDER GAME BOARD ---
+    function render() {
+      // Scores
+      document.getElementById("player-score").innerText = player.score;
+      document.getElementById("ai-score").innerText = ai.score;
+
+      // Render Player Hand
+      const handEl = document.getElementById("hand");
+      handEl.innerHTML = "";
+      player.hand.forEach((card, idx) => {
+        handEl.appendChild(createCardUI(card, () => selectHandCard(idx), idx === selectedCardIndex));
+      });
+
+      // Render Player Active
+      const pActiveEl = document.getElementById("player-active");
+      pActiveEl.innerHTML = "";
+      if (player.active) {
+        pActiveEl.appendChild(createCardUI(player.active));
+      } else {
+        pActiveEl.innerHTML = `<div style="color: #666; border: 2px dashed #444; padding: 20px; border-radius: 8px;">Play Active Pokémon</div>`;
+      }
+
+      // Render Player Bench
+      const pBenchEl = document.getElementById("player-bench");
+      pBenchEl.innerHTML = "";
+      player.bench.forEach(card => pBenchEl.appendChild(createCardUI(card)));
+
+      // Render AI Active
+      const aiActiveEl = document.getElementById("ai-active");
+      aiActiveEl.innerHTML = "";
+      if (ai.active) {
+        aiActiveEl.appendChild(createCardUI(ai.active));
+      }
+
+      // Render AI Bench
+      const aiBenchEl = document.getElementById("ai-bench");
+      aiBenchEl.innerHTML = "";
+      ai.bench.forEach(card => aiBenchEl.appendChild(createCardUI(card)));
+
+      // Control States
+      document.getElementById("attach-btn").disabled = !isPlayerTurn || player.attachedEnergyThisTurn || !player.active;
+      document.getElementById("attack-btn").disabled = !isPlayerTurn || !player.active || player.active.attachedEnergy < player.active.energyCost;
+    }
+
+    function createCardUI(card, onClick, isSelected = false) {
+      const cardDiv = document.createElement("div");
+      cardDiv.className = `card ${isSelected ? 'selected' : ''}`;
+      if (onClick) cardDiv.onclick = onClick;
+
+      cardDiv.innerHTML = `
+        <div class="card-header">
+          <span class="card-title">${card.name}</span>
+          <span class="card-hp">${card.currentHp}/${card.hp}</span>
+        </div>
+        <div class="card-art" style="background-image: url('${card.image}')"></div>
+        <div class="card-body">
+          <div><strong>${card.attackName}</strong> (${card.damage})</div>
+          <div class="energy-badges">
+            ${'<span class="badge ' + card.type + '"></span>'.repeat(card.attachedEnergy)}
           </div>
         </div>
       `;
+      return cardDiv;
     }
 
-    function openPackNow() {
-      document.getElementById('pack-container').style.display = 'none';
-      document.getElementById('reveal-area').style.display = 'flex';
-      document.getElementById('status').innerText = "Tap each card to reveal what you got!";
-      generatePack();
-      renderPackStack();
-    }
+    // --- USER INTERACTIONS ---
+    function selectHandCard(index) {
+      if (!isPlayerTurn) return;
 
-    function generatePack() {
-      currentPack = [];
-      for (let i = 0; i < 10; i++) {
-        const randomIndex = Math.floor(Math.random() * cardDatabase.length);
-        currentPack.push(cardDatabase[randomIndex]);
-      }
-
-      currentPack.forEach(card => {
-        collection.push({
-          instanceId: 'card_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-          cardId: card.id
-        });
-      });
-
-      localStorage.setItem('pkm151_collection', JSON.stringify(collection));
-      renderBinder();
-      renderDex();
-    }
-
-    function renderPackStack() {
-      const stack = document.getElementById('card-stack');
-      stack.innerHTML = '';
-      cardsRemaining = 10;
-      document.getElementById('card-counter-text').innerText = `Cards remaining: ${cardsRemaining}`;
-      document.getElementById('reset-pack-btn').style.display = 'none';
-
-      for (let i = currentPack.length - 1; i >= 0; i--) {
-        const card = currentPack[i];
-        
-        const wrapper = document.createElement('div');
-        wrapper.className = 'card-wrapper';
-        wrapper.style.zIndex = currentPack.length - i;
-        wrapper.innerHTML = buildCardHTML(card);
-
-        wrapper.onclick = function() {
-          if (!wrapper.classList.contains('slide-out')) {
-            wrapper.classList.add('slide-out');
-            cardsRemaining--;
-            
-            if (cardsRemaining > 0) {
-              document.getElementById('card-counter-text').innerText = `Cards remaining: ${cardsRemaining}`;
-            } else {
-              document.getElementById('card-counter-text').innerText = `Pack finished!`;
-              document.getElementById('reset-pack-btn').style.display = 'inline-block';
-            }
-          }
-        };
-
-        stack.appendChild(wrapper);
-      }
-    }
-
-    function resetPackView() {
-      document.getElementById('reveal-area').style.display = 'none';
-      document.getElementById('pack-container').style.display = 'block';
-      document.getElementById('status').innerText = "Ready to open another pack!";
-    }
-
-    function renderBinder() {
-      const binderGrid = document.getElementById('binder-grid');
-      if (!binderGrid) return;
-      binderGrid.innerHTML = '';
-
-      for (let i = 0; i < 16; i++) {
-        const slotDiv = document.createElement('div');
-        slotDiv.className = 'binder-slot';
-
-        const boundInstanceId = binderSlots[i];
-        const itemInSlot = collection.find(c => c.instanceId === boundInstanceId);
-
-        if (itemInSlot) {
-          const cardData = cardDatabase.find(c => c.id === itemInSlot.cardId);
-          if (cardData) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'mini-card';
-            wrapper.style.width = '100%';
-            wrapper.style.height = '100%';
-            wrapper.draggable = true;
-            wrapper.ondragstart = (e) => onDragStart(e, itemInSlot.instanceId);
-            wrapper.innerHTML = buildCardHTML(cardData);
-            slotDiv.appendChild(wrapper);
-          }
-        } else {
-          slotDiv.innerHTML = `<span class="slot-number">${i + 1}</span>`;
-        }
-
-        slotDiv.ondragover = (e) => { e.preventDefault(); slotDiv.classList.add('drag-over'); };
-        slotDiv.ondragleave = () => { slotDiv.classList.remove('drag-over'); };
-        slotDiv.ondrop = (e) => onDropInSlot(e, i);
-
-        binderGrid.appendChild(slotDiv);
-      }
-
-      const trayGrid = document.getElementById('tray-grid');
-      if (!trayGrid) return;
-      trayGrid.innerHTML = '';
-
-      const unplacedCards = collection.filter(item => !binderSlots.includes(item.instanceId));
-
-      unplacedCards.forEach(item => {
-        const cardData = cardDatabase.find(c => c.id === item.cardId);
-        if (cardData) {
-          const cardDiv = document.createElement('div');
-          cardDiv.className = 'mini-card';
-          cardDiv.draggable = true;
-          cardDiv.ondragstart = (e) => onDragStart(e, item.instanceId);
-          cardDiv.innerHTML = buildCardHTML(cardData);
-          cardDiv.onclick = () => autoPlaceCard(item.instanceId);
-
-          trayGrid.appendChild(cardDiv);
-        }
-      });
-    }
-
-    function onDragStart(e, instanceId) {
-      draggedCardInstanceId = instanceId;
-      if (e.dataTransfer) {
-        e.dataTransfer.setData('text/plain', instanceId);
-      }
-    }
-
-    function onDropInSlot(e, slotIndex) {
-      e.preventDefault();
-      document.querySelectorAll('.binder-slot').forEach(s => s.classList.remove('drag-over'));
-
-      if (!draggedCardInstanceId) return;
-
-      const currentSlotIndex = binderSlots.indexOf(draggedCardInstanceId);
-      if (currentSlotIndex !== -1) {
-        binderSlots[currentSlotIndex] = null;
-      }
-
-      binderSlots[slotIndex] = draggedCardInstanceId;
-      localStorage.setItem('pkm151_binder_4x4', JSON.stringify(binderSlots));
-      draggedCardInstanceId = null;
-      renderBinder();
-    }
-
-    function autoPlaceCard(instanceId) {
-      const openSlotIndex = binderSlots.indexOf(null);
-      if (openSlotIndex !== -1) {
-        binderSlots[openSlotIndex] = instanceId;
-        localStorage.setItem('pkm151_binder_4x4', JSON.stringify(binderSlots));
-        renderBinder();
+      if (!player.active) {
+        // First card played becomes Active
+        player.active = player.hand.splice(index, 1)[0];
+        log(`You sent out <strong>${player.active.name}</strong> as your Active Pokémon!`);
+      } else if (player.bench.length < 3) {
+        // Subsequent cards go to Bench
+        const benched = player.hand.splice(index, 1)[0];
+        player.bench.push(benched);
+        log(`You placed <strong>${benched.name}</strong> on your Bench.`);
       } else {
-        alert("Your 4x4 binder is full!");
+        log("Bench is full!");
+      }
+      selectedCardIndex = null;
+      render();
+    }
+
+    function attachEnergy() {
+      if (player.active && !player.attachedEnergyThisTurn) {
+        player.active.attachedEnergy += 1;
+        player.attachedEnergyThisTurn = true;
+        log(`Attached Energy to <strong>${player.active.name}</strong>.`);
+        render();
       }
     }
 
-    function renderDex() {
-      const dexGrid = document.getElementById('dex-grid');
-      if (!dexGrid) return;
-      dexGrid.innerHTML = '';
+    function playerAttack() {
+      if (!player.active || !ai.active) return;
 
-      const ownedCardIds = new Set(collection.map(c => c.cardId));
+      log(`Your <strong>${player.active.name}</strong> used <strong>${player.active.attackName}</strong> for ${player.active.damage} damage!`);
+      ai.active.currentHp -= player.active.damage;
 
-      let totalOwned = 0;
-      cardDatabase.forEach(card => {
-        const isOwned = ownedCardIds.has(card.id);
-        if (isOwned) totalOwned++;
+      if (ai.active.currentHp <= 0) {
+        log(`Opponent's <strong>${ai.active.name}</strong> was knocked out! You gain 1 Point!`);
+        player.score += 1;
+        ai.active = ai.bench.pop() || null;
 
-        const cardDiv = document.createElement('div');
-        cardDiv.className = `dex-card ${!isOwned ? 'unowned' : ''}`;
-        cardDiv.innerHTML = buildCardHTML(card);
-        dexGrid.appendChild(cardDiv);
-      });
-
-      const header = document.querySelector('#dex-tab h2');
-      if (header) {
-        header.innerText = `151 Set Collection (${totalOwned}/${cardDatabase.length})`;
+        if (player.score >= 3) {
+          alert("🎉 YOU WIN THE MATCH!");
+          location.reload();
+          return;
+        }
       }
+
+      endTurn();
     }
 
-    function switchTab(tabId, evt) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-
-      document.getElementById(tabId).classList.add('active');
-      if (evt && evt.target) {
-        evt.target.classList.add('active');
-      }
+    function endTurn() {
+      isPlayerTurn = false;
+      player.attachedEnergyThisTurn = false;
+      log("<strong>--- Opponent's Turn ---</strong>");
+      
+      setTimeout(aiTurn, 1200);
     }
 
-    window.onload = function() {
-      renderDex();
-      renderBinder();
-    };
+    // --- AI LOGIC ---
+    function aiTurn() {
+      // 1. Draw card
+      drawCard(ai);
+
+      // 2. Play card to Bench if available
+      if (ai.hand.length > 0 && ai.bench.length < 3) {
+        ai.bench.push(ai.hand.pop());
+      }
+
+      // 3. Attach energy
+      if (ai.active) {
+        ai.active.attachedEnergy += 1;
+      }
+
+      // 4. Attack if possible
+      if (ai.active && ai.active.attachedEnergy >= ai.active.energyCost && player.active) {
+        log(`Opponent's <strong>${ai.active.name}</strong> used <strong>${ai.active.attackName}</strong> dealing ${ai.active.damage} damage!`);
+        player.active.currentHp -= ai.active.damage;
+
+        if (player.active.currentHp <= 0) {
+          log(`Your <strong>${player.active.name}</strong> was knocked out! Opponent gains 1 Point!`);
+          ai.score += 1;
+          player.active = player.bench.pop() || null;
+
+          if (ai.score >= 3) {
+            alert("❌ GAME OVER - Opponent Won!");
+            location.reload();
+            return;
+          }
+        }
+      }
+
+      // Start Player Turn
+      isPlayerTurn = true;
+      drawCard(player);
+      log("<strong>--- Your Turn ---</strong>");
+      render();
+    }
+
+    // Start
+    initGame();
   </script>
 </body>
 </html>
