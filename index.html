@@ -1,1 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokémon 151 Pack Opener</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
+    body {
+      background-color: #121214;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 80px;
+    }
+
+    header {
+      width: 100%;
+      background-color: #1f1f23;
+      padding: 15px 20px;
+      text-align: center;
+      border-bottom: 2px solid #333;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #ffcb05;
+      text-shadow: 2px 2px #3c5aa6;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .tab-content {
+      display: none;
+      width: 100%;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* Pack Foil Wrapper Styling */
+    .pack-container {
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .pack-wrapper {
+      width: 220px;
+      height: 340px;
+      background: linear-gradient(135deg, #2b32b2 0%, #1488cc 100%);
+      border-radius: 12px;
+      border: 4px solid #ffd700;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.7), inset 0 0 15px rgba(255,255,255,0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .pack-wrapper:hover {
+      transform: scale(1.03);
+      box-shadow: 0 12px 30px rgba(255,215,0,0.3);
+    }
+
+    .pack-top-crimp, .pack-bottom-crimp {
+      width: 100%;
+      height: 15px;
+      background: repeating-linear-gradient(
+        90deg,
+        #b8860b,
+        #b8860b 4px,
+        #ffd700 4px,
+        #ffd700 8px
+      );
+      border-radius: 2px;
+    }
+
+    .pack-logo {
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.4rem;
+      color: #fff;
+      text-shadow: 0 0 8px rgba(0,0,0,0.8);
+    }
+
+    .pack-subtext {
+      font-size: 0.9rem;
+      color: #ffcb05;
+      font-weight: bold;
+    }
+
+    .btn {
+      background-color: #ffcb05;
+      color: #121214;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 25px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background-color: #e6b800;
+    }
+
+    .btn:disabled {
+      background-color: #555;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    .timer-text {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    /* Cards Reveal Area */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 15px;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .card {
+      aspect-ratio: 2.5 / 3.5;
+      background-color: #2a2a2e;
+      border-radius: 8px;
+      border: 2px solid #444;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 8px;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      text-align: center;
+      user-select: none;
+    }
+
+    .card .card-number {
+      font-size: 0.75rem;
+      color: #888;
+      text-align: left;
+    }
+
+    .card .card-name {
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin: 4px 0;
+      color: #fff;
+    }
+
+    .card .card-type {
+      font-size: 0.7rem;
+      color: #aaa;
+    }
+
+    .card .card-rarity {
+      font-size: 0.65rem;
+      font-weight: bold;
+      margin-top: auto;
+      padding: 2px 4px;
+      border-radius: 4px;
+      background-color: #1a1a1c;
+    }
+
+    /* Card Rarities Visual Effects */
+    .rarity-Common { color: #ccc; }
+    .rarity-Uncommon { color: #55cdfc; }
+    .rarity-Holo-Rare { color: #f7a8b8; border-color: #f7a8b8; }
+    .rarity-Double-Rare { color: #ffb300; border-color: #ffb300; }
+    .rarity-Ultra-Rare { color: #ab47bc; border-color: #ab47bc; }
+    .rarity-Illustration-Rare { color: #26a69a; border-color: #26a69a; }
+    .rarity-Special-Illustration-Rare { color: #ff7043; border-color: #ff7043; }
+    .rarity-Hyper-Rare { color: #ffd700; border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+    .rarity-Reverse-Holo { color: #e0e0e0; border-color: #ffffff; background: linear-gradient(135deg, #3a3a40, #222226); }
+
+    /* Pokedex Styling */
+    .pokedex-stats {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #ffcb05;
+    }
+
+    .pokedex-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 12px;
+      width: 100%;
+    }
+
+    .pokedex-card {
+      aspect-ratio: 2.5 / 3.5;
+      background-color: #1c1c1f;
+      border-radius: 6px;
+      border: 1px solid #333;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 6px;
+      opacity: 0.3;
+      filter: grayscale(100%);
+      transition: all 0.2s;
+    }
+
+    .pokedex-card.owned {
+      opacity: 1;
+      filter: grayscale(0%);
+      border-color: #ffcb05;
+      box-shadow: 0 2px 8px rgba(255, 203, 5, 0.2);
+    }
+
+    .pokedex-card .num {
+      font-size: 0.7rem;
+      color: #aaa;
+    }
+
+    .pokedex-card .name {
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    /* Fixed Hotbar at Bottom */
+    .hotbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 65px;
+      background-color: #1a1a1d;
+      border-top: 2px solid #333;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .hotbar-slot {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      color: #888;
+      font-weight: bold;
+      font-size: 0.9rem;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .hotbar-slot:hover {
+      background-color: #252529;
+      color: #fff;
+    }
+
+    .hotbar-slot.active {
+      color: #ffcb05;
+      background-color: #222226;
+      border-top: 3px solid #ffcb05;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Pokémon 151 Pack Opener</h1>
+  </header>
+
+  <div class="container">
+    <!-- TAB 1: PACKS -->
+    <div id="tab-packs" class="tab-content active">
+      <h2>Standard Packs</h2>
+      <div class="pack-container">
+        <div class="pack-wrapper" onclick="openPack('standard')">
+          <div class="pack-top-crimp"></div>
+          <div class="pack-logo">SCARLET & VIOLET<br><span style="font-size:1.8rem; color:#ffcb05;">151</span></div>
+          <div class="pack-subtext">MEW WRAPPER</div>
+          <div class="pack-bottom-crimp"></div>
+        </div>
+        <button id="open-pack-btn" class="btn" onclick="openPack('standard')">Open Pack (<span id="pack-count">10</span>/10)</button>
+        <div id="timer-text" class="timer-text">Full on packs!</div>
+      </div>
+      <div id="standard-cards" class="cards-grid"></div>
+    </div>
+
+    <!-- TAB 2: POKEDEX -->
+    <div id="tab-pokedex" class="tab-content">
+      <div class="pokedex-stats">
+        Collected: <span id="owned-count">0</span> / 207 Cards
+      </div>
+      <div id="pokedex-grid" class="pokedex-grid"></div>
+    </div>
+
+    <!-- TAB 3: UNLIMITED -->
+    <div id="tab-unlimited" class="tab-content">
+      <h2>Unlimited Creative Mode</h2>
+      <div class="pack-container">
+        <div class="pack-wrapper" onclick="openPack('unlimited')">
+          <div class="pack-top-crimp"></div>
+          <div class="pack-logo">SCARLET & VIOLET<br><span style="font-size:1.8rem; color:#ffcb05;">151</span></div>
+          <div class="pack-subtext">CREATIVE MODE</div>
+          <div class="pack-bottom-crimp"></div>
+        </div>
+        <button class="btn" onclick="openPack('unlimited')">Open Unlimited Pack</button>
+      </div>
+      <div id="unlimited-cards" class="cards-grid"></div>
+    </div>
+  </div>
+
+  <!-- HOTBAR -->
+  <div class="hotbar">
+    <div class="hotbar-slot active" onclick="switchTab('packs')">Packs</div>
+    <div class="hotbar-slot" onclick="switchTab('pokedex')">Pokédex</div>
+    <div class="hotbar-slot" onclick="switchTab('unlimited')">Unlimited</div>
+  </div>
+
+  <script>
+    // --- DATABASE: 207 Cards Data ---
+    const rawCardData = [
+      [1,"Bulbasaur","Grass","Common"], [2,"Ivysaur","Grass","Uncommon"], [3,"Venusaur ex","Grass","Double Rare"],
+      [4,"Charmander","Fire","Common"], [5,"Charmeleon","Fire","Uncommon"], [6,"Charizard ex","Fire","Double Rare"],
+      [7,"Squirtle","Water","Common"], [8,"Wartortle","Water","Uncommon"], [9,"Blastoise ex","Water","Double Rare"],
+      [10,"Caterpie","Grass","Common"], [11,"Metapod","Grass","Common"], [12,"Butterfree","Grass","Uncommon"],
+      [13,"Weedle","Grass","Common"], [14,"Kakuna","Grass","Common"], [15,"Beedrill","Grass","Holo Rare"],
+      [16,"Pidgey","Colorless","Common"], [17,"Pidgeotto","Colorless","Common"], [18,"Pidgeot","Colorless","Uncommon"],
+      [19,"Rattata","Colorless","Common"], [20,"Raticate","Colorless","Uncommon"], [21,"Spearow","Colorless","Common"],
+      [22,"Fearow","Colorless","Uncommon"], [23,"Ekans","Darkness","Common"], [24,"Arbok ex","Darkness","Double Rare"],
+      [25,"Pikachu","Lightning","Common"], [26,"Raichu","Lightning","Holo Rare"], [27,"Sandshrew","Fighting","Common"],
+      [28,"Sandslash","Fighting","Uncommon"], [29,"Nidoran♀","Darkness","Common"], [30,"Nidorina","Darkness","Uncommon"],
+      [31,"Nidoqueen","Darkness","Uncommon"], [32,"Nidoran♂","Darkness","Common"], [33,"Nidorino","Darkness","Uncommon"],
+      [34,"Nidoking","Darkness","Holo Rare"], [35,"Clefairy","Psychic","Common"], [36,"Clefable","Psychic","Uncommon"],
+      [37,"Vulpix","Fire","Common"], [38,"Ninetales ex","Fire","Double Rare"], [39,"Jigglypuff","Colorless","Common"],
+      [40,"Wigglytuff ex","Colorless","Double Rare"], [41,"Zubat","Darkness","Common"], [42,"Golbat","Darkness","Uncommon"],
+      [43,"Oddish","Grass","Common"], [44,"Gloom","Grass","Uncommon"], [45,"Vileplume","Grass","Holo Rare"],
+      [46,"Paras","Grass","Common"], [47,"Parasect","Grass","Uncommon"], [48,"Venonat","Grass","Common"],
+      [49,"Venomoth","Grass","Uncommon"], [50,"Diglett","Fighting","Common"], [51,"Dugtrio","Fighting","Uncommon"],
+      [52,"Meowth","Colorless","Common"], [53,"Persian","Colorless","Uncommon"], [54,"Psyduck","Water","Common"],
+      [55,"Golduck","Water","Uncommon"], [56,"Mankey","Fighting","Common"], [57,"Primeape","Fighting","Uncommon"],
+      [58,"Growlithe","Fire","Common"], [59,"Arcanine","Fire","Uncommon"], [60,"Poliwag","Water","Common"],
+      [61,"Poliwhirl","Water","Uncommon"], [62,"Poliwrath","Water","Holo Rare"], [63,"Abra","Psychic","Common"],
+      [64,"Kadabra","Psychic","Uncommon"], [65,"Alakazam ex","Psychic","Double Rare"], [66,"Machop","Fighting","Common"],
+      [67,"Machoke","Fighting","Uncommon"], [68,"Machamp","Fighting","Holo Rare"], [69,"Bellsprout","Grass","Common"],
+      [70,"Weepinbell","Grass","Uncommon"], [71,"Victreebel","Grass","Holo Rare"], [72,"Tentacool","Water","Common"],
+      [73,"Tentacruel","Water","Uncommon"], [74,"Geodude","Fighting","Common"], [75,"Graveler","Fighting","Uncommon"],
+      [76,"Golem ex","Fighting","Double Rare"], [77,"Ponyta","Fire","Common"], [78,"Rapidash","Fire","Uncommon"],
+      [79,"Slowpoke","Water","Common"], [80,"Slowbro","Psychic","Uncommon"], [81,"Magnemite","Metal","Common"],
+      [82,"Magneton","Metal","Uncommon"], [83,"Farfetch'd","Colorless","Uncommon"], [84,"Doduo","Colorless","Common"],
+      [85,"Dodrio","Colorless","Holo Rare"], [86,"Seel","Water","Common"], [87,"Dewgong","Water","Uncommon"],
+      [88,"Grimer","Darkness","Common"], [89,"Muk","Darkness","Uncommon"], [90,"Shellder","Water","Common"],
+      [91,"Cloyster","Water","Uncommon"], [92,"Gastly","Psychic","Common"], [93,"Haunter","Psychic","Uncommon"],
+      [94,"Gengar","Psychic","Holo Rare"], [95,"Onix","Fighting","Uncommon"], [96,"Drowzee","Psychic","Common"],
+      [97,"Hypno","Psychic","Uncommon"], [98,"Krabby","Water","Common"], [99,"Kingler","Water","Uncommon"],
+      [100,"Voltorb","Lightning","Common"], [101,"Electrode","Lightning","Uncommon"], [102,"Exeggcute","Grass","Common"],
+      [103,"Exeggutor","Grass","Uncommon"], [104,"Cubone","Fighting","Common"], [105,"Marowak","Fighting","Uncommon"],
+      [106,"Hitmonlee","Fighting","Uncommon"], [107,"Hitmonchan","Fighting","Uncommon"], [108,"Lickitung","Colorless","Common"],
+      [109,"Koffing","Darkness","Common"], [110,"Weezing","Darkness","Uncommon"], [111,"Rhyhorn","Fighting","Common"],
+      [112,"Rhydon","Fighting","Uncommon"], [113,"Chansey","Colorless","Holo Rare"], [114,"Tangela","Grass","Common"],
+      [115,"Kangaskhan ex","Colorless","Double Rare"], [116,"Horsea","Water","Common"], [117,"Seadra","Water","Uncommon"],
+      [118,"Goldeen","Water","Common"], [119,"Seaking","Water","Uncommon"], [120,"Staryu","Water","Common"],
+      [121,"Starmie","Water","Uncommon"], [122,"Mr. Mime","Psychic","Holo Rare"], [123,"Scyther","Grass","Uncommon"],
+      [124,"Jynx ex","Water","Double Rare"], [125,"Electabuzz","Lightning","Uncommon"], [126,"Magmar","Fire","Uncommon"],
+      [127,"Pinsir","Grass","Uncommon"], [128,"Tauros","Colorless","Uncommon"], [129,"Magikarp","Water","Common"],
+      [130,"Gyarados","Water","Holo Rare"], [131,"Lapras","Water","Uncommon"], [132,"Ditto","Colorless","Uncommon"],
+      [133,"Eevee","Colorless","Common"], [134,"Vaporeon","Water","Holo Rare"], [135,"Jolteon","Lightning","Holo Rare"],
+      [136,"Flareon","Fire","Holo Rare"], [137,"Porygon","Colorless","Common"], [138,"Omanyte","Water","Common"],
+      [139,"Omastar","Water","Uncommon"], [140,"Kabuto","Fighting","Common"], [141,"Kabutops","Fighting","Holo Rare"],
+      [142,"Aerodactyl","Colorless","Holo Rare"], [143,"Snorlax","Colorless","Holo Rare"], [144,"Articuno","Water","Holo Rare"],
+      [145,"Zapdos ex","Lightning","Double Rare"], [146,"Moltres","Fire","Holo Rare"], [147,"Dratini","Dragon","Common"],
+      [148,"Dragonair","Dragon","Uncommon"], [149,"Dragonite","Dragon","Holo Rare"], [150,"Mewtwo","Psychic","Holo Rare"],
+      [151,"Mew ex","Psychic","Double Rare"]
+    ];
+
+    // Helper arrays by category
+    const cards = [];
+    
+    // Add 1-151 base cards
+    rawCardData.forEach(([id, name, type, rarity]) => {
+      cards.push({ id, name, type, rarity });
+    });
+
+    // Add Trainer cards (152-165)
+    for (let i = 152; i <= 165; i++) {
+      const isUncommon = i % 2 === 0;
+      cards.push({ id: i, name: `Trainer Item #${i - 151}`, type: "Trainer", rarity: isUncommon ? "Uncommon" : "Common" });
+    }
+
+    // Add Illustration Rares (166-181)
+    for (let i = 166; i <= 181; i++) {
+      cards.push({ id: i, name: `Special Art Card #${i}`, type: "Special", rarity: "Illustration Rare" });
+    }
+
+    // Add Ultra Rares Full Art (182-197)
+    for (let i = 182; i <= 197; i++) {
+      cards.push({ id: i, name: `Full Art Card #${i}`, type: "Special", rarity: "Ultra Rare" });
+    }
+
+    // Add Special Illustration Rares (198-204)
+    for (let i = 198; i <= 204; i++) {
+      cards.push({ id: i, name: `SIR Card #${i}`, type: "Special", rarity: "Special Illustration Rare" });
+    }
+
+    // Add Hyper Rares (205-207)
+    for (let i = 205; i <= 207; i++) {
+      cards.push({ id: i, name: `Gold Card #${i}`, type: "Special", rarity: "Hyper Rare" });
+    }
+
+    // Card categorization
+    const commons = cards.filter(c => c.rarity === "Common");
+    const uncommons = cards.filter(c => c.rarity === "Uncommon");
+    const holoRares = cards.filter(c => c.rarity === "Holo Rare");
+    const doubleRares = cards.filter(c => c.rarity === "Double Rare");
+    const ultraRares = cards.filter(c => c.rarity === "Ultra Rare");
+    const illustrationRares = cards.filter(c => c.rarity === "Illustration Rare");
+    const sirRares = cards.filter(c => c.rarity === "Special Illustration Rare");
+    const hyperRares = cards.filter(c => c.rarity === "Hyper Rare");
+
+    // Game State
+    let ownedCards = new Set(JSON.parse(localStorage.getItem('pokemon151_owned') || '[]'));
+    let packsAvailable = parseInt(localStorage.getItem('pokemon151_packs') ?? '10');
+    let lastRechargeTime = parseInt(localStorage.getItem('pokemon151_last_time') ?? Date.now().toString());
+
+    const MAX_PACKS = 10;
+    const RECHARGE_INTERVAL = 3600000; // 1 hour in ms
+
+    // Functions
+    function getRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function generatePack() {
+      const pack = [];
+
+      // Slots 1-6: Commons
+      for (let i = 0; i < 6; i++) pack.push(getRandom(commons));
+
+      // Slots 7-9: Uncommons
+      for (let i = 0; i < 3; i++) pack.push(getRandom(uncommons));
+
+      // Slot 10: Reverse Holo (Slot 1)
+      const revBase = getRandom([...commons, ...uncommons, ...holoRares]);
+      pack.push({ ...revBase, isReverseHolo: true });
+
+      // Slot 11: Reverse Holo / Hit Slot
+      const rand11 = Math.random() * 100;
+      if (rand11 < 86.5) {
+        const revBase2 = getRandom([...commons, ...uncommons, ...holoRares]);
+        pack.push({ ...revBase2, isReverseHolo: true });
+      } else if (rand11 < 86.5 + 8.5) {
+        pack.push(getRandom(illustrationRares));
+      } else if (rand11 < 86.5 + 8.5 + 3.1) {
+        pack.push(getRandom(sirRares));
+      } else {
+        pack.push(getRandom(hyperRares));
+      }
+
+      // Slot 12: Rare / Ultra Rare Hit Slot
+      const rand12 = Math.random() * 100;
+      if (rand12 < 80) {
+        pack.push(getRandom(holoRares));
+      } else if (rand12 < 80 + 13.3) {
+        pack.push(getRandom(doubleRares));
+      } else {
+        pack.push(getRandom(ultraRares));
+      }
+
+      // Slot 13: Basic Energy
+      pack.push({ id: 0, name: "Basic Energy", type: "Energy", rarity: "Common" });
+
+      // Slot 14: Code Card
+      pack.push({ id: 0, name: "TCG Live Code Card", type: "Code", rarity: "Common" });
+
+      return pack;
+    }
+
+    function openPack(mode) {
+      if (mode === 'standard') {
+        if (packsAvailable <= 0) return;
+        packsAvailable--;
+        if (packsAvailable === MAX_PACKS - 1) {
+          lastRechargeTime = Date.now();
+        }
+        saveState();
+        updatePackTimerUI();
+      }
+
+      const pack = generatePack();
+
+      // Add to Pokédex
+      pack.forEach(card => {
+        if (card.id > 0) {
+          ownedCards.add(card.id);
+        }
+      });
+      saveState();
+
+      // Display Cards
+      const containerId = mode === 'standard' ? 'standard-cards' : 'unlimited-cards';
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      pack.forEach(card => {
+        const rarityClass = card.isReverseHolo ? 'Reverse-Holo' : card.rarity.replace(/ /g, '-');
+        const cardEl = document.createElement('div');
+        cardEl.className = `card rarity-${rarityClass}`;
+        cardEl.innerHTML = `
+          <div class="card-number">${card.id > 0 ? '#' + String(card.id).padStart(3, '0') : '---'}</div>
+          <div class="card-name">${card.name}</div>
+          <div class="card-type">${card.type}</div>
+          <div class="card-rarity">${card.isReverseHolo ? 'Reverse Holo' : card.rarity}</div>
+        `;
+        container.appendChild(cardEl);
+      });
+
+      renderPokedex();
+    }
+
+    function updatePackTimerUI() {
+      const now = Date.now();
+      const timePassed = now - lastRechargeTime;
+
+      if (packsAvailable < MAX_PACKS) {
+        const packsToAdd = Math.floor(timePassed / RECHARGE_INTERVAL);
+        if (packsToAdd > 0) {
+          packsAvailable = Math.min(MAX_PACKS, packsAvailable + packsToAdd);
+          lastRechargeTime = now - (timePassed % RECHARGE_INTERVAL);
+          saveState();
+        }
+      }
+
+      document.getElementById('pack-count').textContent = packsAvailable;
+      const btn = document.getElementById('open-pack-btn');
+      const timerText = document.getElementById('timer-text');
+
+      if (packsAvailable >= MAX_PACKS) {
+        btn.disabled = false;
+        timerText.textContent = "Full on packs!";
+      } else {
+        btn.disabled = packsAvailable <= 0;
+        const timeLeft = RECHARGE_INTERVAL - ((now - lastRechargeTime) % RECHARGE_INTERVAL);
+        const minutes = Math.floor(timeLeft / 60000);
+        const seconds = Math.floor((timeLeft % 60000) / 1000);
+        timerText.textContent = `Next pack in: ${minutes}m ${seconds}s`;
+      }
+    }
+
+    function renderPokedex() {
+      const grid = document.getElementById('pokedex-grid');
+      grid.innerHTML = '';
+      document.getElementById('owned-count').textContent = ownedCards.size;
+
+      cards.forEach(card => {
+        const isOwned = ownedCards.has(card.id);
+        const cardEl = document.createElement('div');
+        cardEl.className = `pokedex-card ${isOwned ? 'owned' : ''}`;
+        cardEl.innerHTML = `
+          <div class="num">#${String(card.id).padStart(3, '0')}</div>
+          <div class="name">${card.name}</div>
+          <div class="num">${card.rarity}</div>
+        `;
+        grid.appendChild(cardEl);
+      });
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.hotbar-slot').forEach(el => el.classList.remove('active'));
+
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+
+      const slots = document.querySelectorAll('.hotbar-slot');
+      if (tabName === 'packs') slots[0].classList.add('active');
+      if (tabName === 'pokedex') slots[1].classList.add('active');
+      if (tabName === 'unlimited') slots[2].classList.add('active');
+    }
+
+    function saveState() {
+      localStorage.setItem('pokemon151_owned', JSON.stringify([...ownedCards]));
+      localStorage.setItem('pokemon151_packs', packsAvailable.toString());
+      localStorage.setItem('pokemon151_last_time', lastRechargeTime.toString());
+    }
+
+    // Init
+    renderPokedex();
+    updatePackTimerUI();
+    setInterval(updatePackTimerUI, 1000);
+  </script>
+</body>
+</html>
