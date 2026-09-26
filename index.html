@@ -158,21 +158,6 @@
       display: block;
     }
 
-    .reverse-holo-badge {
-      position: absolute;
-      bottom: 5px;
-      left: 5px;
-      right: 5px;
-      background: rgba(255, 255, 255, 0.85);
-      color: #111;
-      font-size: 0.65rem;
-      font-weight: bold;
-      text-align: center;
-      padding: 2px 0;
-      border-radius: 4px;
-      text-transform: uppercase;
-    }
-
     /* Pokédex Styling */
     .pokedex-stats {
       font-size: 1.2rem;
@@ -405,7 +390,7 @@
     const sirRares = cards.filter(c => c.rarity === "Special Illustration Rare");
     const hyperRares = cards.filter(c => c.rarity === "Hyper Rare");
 
-    // Game States (Separate Pokédexes)
+    // Game States
     let ownedStandardCards = new Set(JSON.parse(localStorage.getItem('pokemon151_owned_standard') || '[]'));
     let ownedUnlimitedCards = new Set(JSON.parse(localStorage.getItem('pokemon151_owned_unlimited') || '[]'));
     let currentPokedexView = 'standard';
@@ -422,18 +407,18 @@
 
     function generatePack() {
       const pack = [];
+      // Slots 1-6: Commons
       for (let i = 0; i < 6; i++) pack.push(getRandom(commons));
+      // Slots 7-9: Uncommons
       for (let i = 0; i < 3; i++) pack.push(getRandom(uncommons));
 
-      // Slot 10: Reverse Holo
-      const revBase = getRandom([...commons, ...uncommons, ...holoRares]);
-      pack.push({ ...revBase, isReverseHolo: true });
+      // Slot 10: Extra Common / Uncommon / Rare
+      pack.push(getRandom([...commons, ...uncommons, ...holoRares]));
 
-      // Slot 11: Reverse Holo / Hit Slot
+      // Slot 11: Hit Slot 1
       const rand11 = Math.random() * 100;
       if (rand11 < 86.5) {
-        const revBase2 = getRandom([...commons, ...uncommons, ...holoRares]);
-        pack.push({ ...revBase2, isReverseHolo: true });
+        pack.push(getRandom([...commons, ...uncommons, ...holoRares]));
       } else if (rand11 < 86.5 + 8.5) {
         pack.push(getRandom(illustrationRares));
       } else if (rand11 < 86.5 + 8.5 + 3.1) {
@@ -442,7 +427,7 @@
         pack.push(getRandom(hyperRares));
       }
 
-      // Slot 12: Rare / Ultra Rare
+      // Slot 12: Rare / Ultra Rare Hit Slot 2
       const rand12 = Math.random() * 100;
       if (rand12 < 80) {
         pack.push(getRandom(holoRares));
@@ -496,7 +481,6 @@
         cardEl.className = 'card-img-container';
         cardEl.innerHTML = `
           <img src="${card.image}" alt="${card.name}" loading="lazy" />
-          ${card.isReverseHolo ? '<div class="reverse-holo-badge">Reverse Holo</div>' : ''}
         `;
         container.appendChild(cardEl);
       });
