@@ -20,6 +20,7 @@
       flex-direction: column;
       align-items: center;
       padding-bottom: 80px;
+      overflow-x: hidden;
     }
 
     header {
@@ -80,7 +81,7 @@
       border-color: #ffcb05;
     }
 
-    /* Real Pack Wrapper Visuals */
+    /* Pack Visuals */
     .pack-container {
       margin: 15px 0;
       display: flex;
@@ -99,6 +100,7 @@
       user-select: none;
       border: 2px solid #333;
       background-color: #000;
+      transition: transform 0.3s ease;
     }
 
     .pack-wrapper-art img {
@@ -155,44 +157,96 @@
       color: #aaa;
     }
 
-    /* Interactive Card Reveal Stack */
+    /* TCG Pocket Style Card Reveal Stage */
     .reveal-area {
       position: relative;
-      width: 220px;
-      height: 310px;
+      width: 240px;
+      height: 335px;
       margin-top: 20px;
       display: none;
       justify-content: center;
       align-items: center;
+      perspective: 1000px;
     }
 
-    .card-stack {
+    .card-counter-badge {
+      position: absolute;
+      top: -30px;
+      background: #ffcb05;
+      color: #121214;
+      font-weight: bold;
+      padding: 2px 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      z-index: 10;
+    }
+
+    /* 3D Card Flip Container */
+    .card-3d {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .card-3d.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
       position: absolute;
       width: 100%;
       height: 100%;
+      backface-visibility: hidden;
       border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.8);
-      cursor: pointer;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-      background-color: #2a2a2e;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.7);
       overflow: hidden;
     }
 
-    .card-stack img {
+    .card-face img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .card-counter-badge {
+    .card-back {
+      background-color: #1a1a24;
+      border: 2px solid #3c5aa6;
+    }
+
+    .card-front {
+      transform: rotateY(180deg);
+      border: 1px solid #444;
+    }
+
+    /* TCG Pocket Swiping and Reveal FX */
+    .reveal-area.slide-out {
+      animation: slideNext 0.4s ease forwards;
+    }
+
+    @keyframes slideNext {
+      0% { transform: translateX(0) scale(1); opacity: 1; }
+      50% { transform: translateX(180px) rotate(15deg) scale(0.9); opacity: 0.5; }
+      100% { transform: translateX(0) scale(1); opacity: 1; }
+    }
+
+    /* Rare Card Burst Effect */
+    .rare-burst {
       position: absolute;
-      top: -25px;
-      background: #ffcb05;
-      color: #121214;
-      font-weight: bold;
-      padding: 2px 10px;
-      border-radius: 12px;
-      font-size: 0.85rem;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,203,5,0.8) 0%, rgba(255,203,5,0) 70%);
+      pointer-events: none;
+      animation: burstAnim 0.8s ease-out forwards;
+      z-index: 2;
+    }
+
+    @keyframes burstAnim {
+      0% { transform: scale(0.2); opacity: 1; }
+      100% { transform: scale(2.5); opacity: 0; }
     }
 
     /* Pokédex Styling */
@@ -384,6 +438,7 @@
       cursor: pointer;
       border: 2px solid transparent;
       overflow: hidden;
+      position: relative;
     }
 
     .modal-card:hover {
@@ -394,6 +449,18 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+
+    .modal-card .card-num-tag {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      background: rgba(0,0,0,0.8);
+      color: #ffcb05;
+      font-size: 0.6rem;
+      padding: 1px 3px;
+      border-radius: 2px;
+      font-weight: bold;
     }
 
     .close-btn {
@@ -464,7 +531,6 @@
       <div class="pack-container" id="pack-opening-area">
         <div class="pack-wrapper-art" id="active-pack-wrapper" onmousedown="startSwipe(event)" ontouchstart="startSwipe(event)">
           <div class="pack-crimp-overlay">SWIPE TOP TO RIP</div>
-          <!-- Authentic 151 Mew Pack Wrapper Artwork -->
           <img id="pack-img" src="https://preview.redd.it/151-booster-pack-foil-wrapper-inconsistencies-v0-enq2aup71b3c1.jpg?width=1080&crop=smart&auto=webp&s=c77c6027c7a885cfd34b7309d5ad975e6781122a" alt="151 Pack Wrapper Art" />
         </div>
         <button id="open-pack-btn" class="btn" onclick="startPackOpen()">Open Pack (<span id="pack-count">10</span>/10)</button>
@@ -473,7 +539,16 @@
       
       <div class="reveal-area" id="pack-reveal-area">
         <div class="card-counter-badge" id="card-badge">Card 1 / 10</div>
-        <div id="card-slot" class="card-stack" onclick="nextCard()"></div>
+        
+        <!-- TCG Pocket 3D Card Interactive Stack -->
+        <div class="card-3d" id="card-3d-element" onclick="handleCardClick()">
+          <div class="card-face card-back">
+            <img src="https://tcg.pokemon.com/assets/img/global/tcg-card-back-2x.png" alt="Card Back" />
+          </div>
+          <div class="card-face card-front" id="card-front-face">
+            <img id="card-front-img" src="" alt="Card Front" />
+          </div>
+        </div>
       </div>
     </div>
 
@@ -509,7 +584,7 @@
   <div class="modal-overlay" id="card-modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Select a Card to Place</h3>
+        <h3>Select a Card (Set Number Order)</h3>
         <button class="close-btn" onclick="closeModal()">X</button>
       </div>
       <div class="modal-grid" id="modal-card-grid"></div>
@@ -608,6 +683,7 @@
 
     const commons = cards.filter(c => c.rarity === "Common");
     const uncommons = cards.filter(c => c.rarity === "Uncommon");
+    const rares = cards.filter(c => c.rarity !== "Common" && c.rarity !== "Uncommon");
 
     // Game States
     let ownedStandardCards = new Set(JSON.parse(localStorage.getItem('pokemon151_owned_standard') || '[]'));
@@ -628,10 +704,12 @@
     let lastRechargeTime = parseInt(localStorage.getItem('pokemon151_last_time') ?? Date.now().toString());
 
     const MAX_PACKS = 10;
-    const RECHARGE_INTERVAL = 3600000; // 1 hour
+    const RECHARGE_INTERVAL = 3600000;
 
     let activePackCards = [];
     let activeCardIndex = 0;
+    let isFlipped = false;
+    let isAnimating = false;
     let startX = 0;
 
     function getRandom(arr) {
@@ -642,7 +720,13 @@
       const pack = [];
       for (let i = 0; i < 6; i++) pack.push(getRandom(commons));
       for (let i = 0; i < 3; i++) pack.push(getRandom(uncommons));
-      pack.push(getRandom(uncommons));
+      
+      // Last card chance for hit
+      if (Math.random() < 0.35) {
+        pack.push(getRandom(rares));
+      } else {
+        pack.push(getRandom(uncommons));
+      }
       return pack;
     }
 
@@ -689,34 +773,65 @@
       document.getElementById('pack-opening-area').style.display = 'none';
       document.getElementById('pack-reveal-area').style.display = 'flex';
 
-      showCard();
+      setupCardReveal();
       renderPokedex();
     }
 
-    function showCard() {
-      const slot = document.getElementById('card-slot');
+    function setupCardReveal() {
+      isFlipped = false;
+      const card3D = document.getElementById('card-3d-element');
       const badge = document.getElementById('card-badge');
+      const frontImg = document.getElementById('card-front-img');
 
-      if (activeCardIndex < activePackCards.length) {
-        badge.textContent = `Card ${activeCardIndex + 1} / 10`;
-        slot.style.transform = 'none';
-        slot.style.opacity = '1';
-        slot.innerHTML = `<img src="${activePackCards[activeCardIndex].image}" alt="${activePackCards[activeCardIndex].name}" />`;
+      card3D.classList.remove('flipped');
+      badge.textContent = `Card ${activeCardIndex + 1} / 10`;
+
+      // Set front image ready behind card back
+      frontImg.src = activePackCards[activeCardIndex].image;
+    }
+
+    function handleCardClick() {
+      if (isAnimating) return;
+
+      const card3D = document.getElementById('card-3d-element');
+      const container = document.getElementById('pack-reveal-area');
+
+      if (!isFlipped) {
+        // TCG Pocket Flip Animation
+        isFlipped = true;
+        card3D.classList.add('flipped');
+
+        // Check if rare hit for burst effect
+        const currentCard = activePackCards[activeCardIndex];
+        if (currentCard.rarity !== 'Common' && currentCard.rarity !== 'Uncommon') {
+          triggerRareBurst();
+        }
       } else {
-        document.getElementById('pack-reveal-area').style.display = 'none';
-        document.getElementById('pack-opening-area').style.display = 'flex';
+        // TCG Pocket Swipe to Next Card Animation
+        isAnimating = true;
+        container.classList.add('slide-out');
+
+        setTimeout(() => {
+          container.classList.remove('slide-out');
+          activeCardIndex++;
+
+          if (activeCardIndex < activePackCards.length) {
+            setupCardReveal();
+          } else {
+            document.getElementById('pack-reveal-area').style.display = 'none';
+            document.getElementById('pack-opening-area').style.display = 'flex';
+          }
+          isAnimating = false;
+        }, 400);
       }
     }
 
-    function nextCard() {
-      const slot = document.getElementById('card-slot');
-      slot.style.transform = 'translateX(100px) rotate(15deg)';
-      slot.style.opacity = '0';
-
-      setTimeout(() => {
-        activeCardIndex++;
-        showCard();
-      }, 200);
+    function triggerRareBurst() {
+      const container = document.getElementById('pack-reveal-area');
+      const burst = document.createElement('div');
+      burst.className = 'rare-burst';
+      container.appendChild(burst);
+      setTimeout(() => burst.remove(), 800);
     }
 
     function switchPackMode(mode) {
@@ -832,9 +947,12 @@
       modalGrid.innerHTML = '';
 
       // Combine owned cards across modes
-      const allOwnedIds = new Set([...ownedStandardCards, ...ownedUnlimitedCards]);
+      const allOwnedIds = Array.from(new Set([...ownedStandardCards, ...ownedUnlimitedCards]));
 
-      if (allOwnedIds.size === 0) {
+      // CRITICAL: Sort available cards in strictly Set Number Order (#001 to #207)
+      allOwnedIds.sort((a, b) => a - b);
+
+      if (allOwnedIds.length === 0) {
         modalGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #888;">You don't own any cards yet! Open packs first.</div>`;
       } else {
         allOwnedIds.forEach(id => {
@@ -842,7 +960,10 @@
           if (cardObj) {
             const cardEl = document.createElement('div');
             cardEl.className = 'modal-card';
-            cardEl.innerHTML = `<img src="${cardObj.image}" alt="${cardObj.name}" />`;
+            cardEl.innerHTML = `
+              <img src="${cardObj.image}" alt="${cardObj.name}" />
+              <span class="card-num-tag">#${cardObj.id}</span>
+            `;
             cardEl.onclick = () => selectCardForSlot(cardObj.id);
             modalGrid.appendChild(cardEl);
           }
