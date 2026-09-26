@@ -57,7 +57,30 @@
       display: flex;
     }
 
-    /* Foil Pack Wrapper Graphics */
+    .mode-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .mode-subtab {
+      background-color: #2a2a2e;
+      color: #ccc;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+      border: 1px solid #444;
+    }
+
+    .mode-subtab.active {
+      background-color: #ffcb05;
+      color: #121214;
+      border-color: #ffcb05;
+    }
+
+    /* Real Pack Wrapper Visuals */
     .pack-container {
       margin: 15px 0;
       display: flex;
@@ -65,78 +88,41 @@
       align-items: center;
     }
 
-    .pack-wrapper {
+    .pack-wrapper-art {
       width: 220px;
-      height: 350px;
-      background: linear-gradient(135deg, #2b32b2 0%, #1488cc 50%, #2b32b2 100%);
+      height: 380px;
       border-radius: 12px;
-      border: 3px solid #e0c068;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.4);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
       position: relative;
       overflow: hidden;
       cursor: pointer;
       user-select: none;
+      border: 2px solid #333;
     }
 
-    .pack-crimp-top {
+    .pack-wrapper-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .pack-crimp-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 35px;
-      background: repeating-linear-gradient(90deg, #b8860b, #b8860b 4px, #ffd700 4px, #ffd700 8px);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-      position: relative;
+      background: rgba(255, 255, 255, 0.15);
+      border-bottom: 2px dashed rgba(255, 255, 255, 0.5);
       display: flex;
       justify-content: center;
       align-items: center;
       font-size: 0.75rem;
       font-weight: bold;
-      color: #000;
+      color: #fff;
+      text-shadow: 0 0 4px #000;
       cursor: ew-resize;
-    }
-
-    .pack-crimp-bottom {
-      width: 100%;
-      height: 25px;
-      background: repeating-linear-gradient(90deg, #b8860b, #b8860b 4px, #ffd700 4px, #ffd700 8px);
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
-    }
-
-    .pack-art {
-      text-align: center;
-      padding: 10px;
-    }
-
-    .pack-art .title {
-      font-size: 1.2rem;
-      font-weight: 900;
-      color: #fff;
-      text-shadow: 0 0 8px #000, 2px 2px #3c5aa6;
-    }
-
-    .pack-art .sub {
-      font-size: 2.2rem;
-      font-weight: 900;
-      color: #ffcb05;
-      text-shadow: 2px 2px #000;
-    }
-
-    .swipe-instruction {
-      font-size: 0.8rem;
-      color: #fff;
-      background: rgba(0,0,0,0.6);
-      padding: 4px 8px;
-      border-radius: 10px;
-      margin-bottom: 15px;
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0% { opacity: 0.6; }
-      50% { opacity: 1; }
-      100% { opacity: 0.6; }
     }
 
     .btn {
@@ -206,30 +192,6 @@
       padding: 2px 10px;
       border-radius: 12px;
       font-size: 0.85rem;
-    }
-
-    /* Sub-tabs for Pokédex */
-    .pokedex-tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
-    .pokedex-subtab {
-      background-color: #2a2a2e;
-      color: #ccc;
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 0.9rem;
-      border: 1px solid #444;
-    }
-
-    .pokedex-subtab.active {
-      background-color: #ffcb05;
-      color: #121214;
-      border-color: #ffcb05;
     }
 
     /* Pokédex Styling */
@@ -333,59 +295,36 @@
   <div class="container">
     <!-- TAB 1: PACKS -->
     <div id="tab-packs" class="tab-content active">
-      <h2>Packs Mode</h2>
-      <div class="pack-container" id="standard-pack-container">
-        <div class="pack-wrapper" id="standard-pack" onmousedown="startSwipe(event, 'standard')" ontouchstart="startSwipe(event, 'standard')">
-          <div class="pack-crimp-top" id="standard-crimp">RIP TOP HERE</div>
-          <div class="pack-art">
-            <div class="title">SCARLET & VIOLET</div>
-            <div class="sub">151</div>
-          </div>
-          <div class="swipe-instruction">Swipe top to open!</div>
-          <div class="pack-crimp-bottom"></div>
+      <div class="mode-tabs">
+        <div id="pack-mode-standard" class="mode-subtab active" onclick="switchPackMode('standard')">Standard Packs</div>
+        <div id="pack-mode-unlimited" class="mode-subtab" onclick="switchPackMode('unlimited')">Unlimited Packs</div>
+      </div>
+
+      <div class="pack-container" id="pack-opening-area">
+        <div class="pack-wrapper-art" id="active-pack-wrapper" onmousedown="startSwipe(event)" ontouchstart="startSwipe(event)">
+          <div class="pack-crimp-overlay">SWIPE TOP TO RIP</div>
+          <img id="pack-img" src="https://tcg.pokemon.com/assets/img/expansions/151/cards/en-us/SV3pt5_EN_151-p.jpg" alt="151 Pack Wrapper" onerror="this.src='https://images.pokemontcg.io/sv3pt5/151_hires.png'" />
         </div>
-        <button id="open-pack-btn" class="btn" onclick="startPackOpen('standard')">Ready Pack (<span id="pack-count">10</span>/10)</button>
+        <button id="open-pack-btn" class="btn" onclick="startPackOpen()">Open Pack (<span id="pack-count">10</span>/10)</button>
         <div id="timer-text" class="timer-text">Full on packs!</div>
       </div>
       
-      <div class="reveal-area" id="standard-reveal">
-        <div class="card-counter-badge" id="standard-badge">Card 1 / 10</div>
-        <div id="standard-card-slot" class="card-stack" onclick="nextCard('standard')"></div>
+      <div class="reveal-area" id="pack-reveal-area">
+        <div class="card-counter-badge" id="card-badge">Card 1 / 10</div>
+        <div id="card-slot" class="card-stack" onclick="nextCard()"></div>
       </div>
     </div>
 
     <!-- TAB 2: POKEDEX -->
     <div id="tab-pokedex" class="tab-content">
-      <div class="pokedex-tabs">
-        <div id="pokedex-mode-standard" class="pokedex-subtab active" onclick="switchPokedexMode('standard')">Packs Pokédex</div>
-        <div id="pokedex-mode-unlimited" class="pokedex-subtab" onclick="switchPokedexMode('unlimited')">Unlimited Pokédex</div>
+      <div class="mode-tabs">
+        <div id="pokedex-mode-standard" class="mode-subtab active" onclick="switchPokedexMode('standard')">Standard Pokédex</div>
+        <div id="pokedex-mode-unlimited" class="mode-subtab" onclick="switchPokedexMode('unlimited')">Unlimited Pokédex</div>
       </div>
       <div class="pokedex-stats">
         Collected: <span id="owned-count">0</span> / 207 Cards
       </div>
       <div id="pokedex-grid" class="pokedex-grid"></div>
-    </div>
-
-    <!-- TAB 3: UNLIMITED -->
-    <div id="tab-unlimited" class="tab-content">
-      <h2>Unlimited Mode</h2>
-      <div class="pack-container" id="unlimited-pack-container">
-        <div class="pack-wrapper" id="unlimited-pack" onmousedown="startSwipe(event, 'unlimited')" ontouchstart="startSwipe(event, 'unlimited')">
-          <div class="pack-crimp-top" id="unlimited-crimp">RIP TOP HERE</div>
-          <div class="pack-art">
-            <div class="title">SCARLET & VIOLET</div>
-            <div class="sub">151</div>
-          </div>
-          <div class="swipe-instruction">Swipe top to open!</div>
-          <div class="pack-crimp-bottom"></div>
-        </div>
-        <button class="btn" onclick="startPackOpen('unlimited')">Ready Unlimited Pack</button>
-      </div>
-
-      <div class="reveal-area" id="unlimited-reveal">
-        <div class="card-counter-badge" id="unlimited-badge">Card 1 / 10</div>
-        <div id="unlimited-card-slot" class="card-stack" onclick="nextCard('unlimited')"></div>
-      </div>
     </div>
   </div>
 
@@ -393,7 +332,6 @@
   <div class="hotbar">
     <div class="hotbar-slot active" onclick="switchTab('packs')">Packs</div>
     <div class="hotbar-slot" onclick="switchTab('pokedex')">Pokédex</div>
-    <div class="hotbar-slot" onclick="switchTab('unlimited')">Unlimited</div>
   </div>
 
   <script>
@@ -478,13 +416,20 @@
       cards.push({ id: i, name: `Hyper Rare Gold #${i}`, type: "Special", rarity: "Hyper Rare", image: `https://images.pokemontcg.io/sv3pt5/${i}_hires.png` });
     }
 
-    // Categories
+    // Pack Art URLs
+    const packArtImages = [
+      "https://tcg.pokemon.com/assets/img/expansions/151/cards/en-us/SV3pt5_EN_151-p.jpg",
+      "https://images.pokemontcg.io/sv3pt5/151_hires.png"
+    ];
+
     const commons = cards.filter(c => c.rarity === "Common");
     const uncommons = cards.filter(c => c.rarity === "Uncommon");
 
     // Game States
     let ownedStandardCards = new Set(JSON.parse(localStorage.getItem('pokemon151_owned_standard') || '[]'));
     let ownedUnlimitedCards = new Set(JSON.parse(localStorage.getItem('pokemon151_owned_unlimited') || '[]'));
+    
+    let currentPackMode = 'standard';
     let currentPokedexView = 'standard';
 
     let packsAvailable = parseInt(localStorage.getItem('pokemon151_packs') ?? '10');
@@ -493,9 +438,8 @@
     const MAX_PACKS = 10;
     const RECHARGE_INTERVAL = 3600000; // 1 hour
 
-    // Active pack state
-    let activePacks = { standard: [], unlimited: [] };
-    let activeCardIndices = { standard: 0, unlimited: 0 };
+    let activePackCards = [];
+    let activeCardIndex = 0;
     let startX = 0;
 
     function getRandom(arr) {
@@ -510,14 +454,14 @@
       return pack;
     }
 
-    function startSwipe(e, mode) {
+    function startSwipe(e) {
       startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
       const handleMove = (eMove) => {
         const currentX = eMove.type.includes('touch') ? eMove.touches[0].clientX : eMove.clientX;
         if (Math.abs(currentX - startX) > 50) {
           document.removeEventListener('mousemove', handleMove);
           document.removeEventListener('touchmove', handleMove);
-          executeOpenPack(mode);
+          executeOpenPack();
         }
       };
       document.addEventListener('mousemove', handleMove);
@@ -526,12 +470,12 @@
       document.addEventListener('touchend', () => document.removeEventListener('touchmove', handleMove), { once: true });
     }
 
-    function startPackOpen(mode) {
-      executeOpenPack(mode);
+    function startPackOpen() {
+      executeOpenPack();
     }
 
-    function executeOpenPack(mode) {
-      if (mode === 'standard') {
+    function executeOpenPack() {
+      if (currentPackMode === 'standard') {
         if (packsAvailable <= 0) return;
         packsAvailable--;
         if (packsAvailable === MAX_PACKS - 1) lastRechargeTime = Date.now();
@@ -539,56 +483,71 @@
         updatePackTimerUI();
       }
 
-      const pack = generatePack10();
-      activePacks[mode] = pack;
-      activeCardIndices[mode] = 0;
+      activePackCards = generatePack10();
+      activeCardIndex = 0;
 
-      pack.forEach(card => {
+      activePackCards.forEach(card => {
         if (card.id > 0) {
-          if (mode === 'standard') ownedStandardCards.add(card.id);
+          if (currentPackMode === 'standard') ownedStandardCards.add(card.id);
           else ownedUnlimitedCards.add(card.id);
         }
       });
       saveState();
 
-      document.getElementById(`${mode}-pack-container`).style.display = 'none';
-      const revealArea = document.getElementById(`${mode}-reveal`);
-      revealArea.style.display = 'flex';
+      document.getElementById('pack-opening-area').style.display = 'none';
+      document.getElementById('pack-reveal-area').style.display = 'flex';
 
-      showCard(mode);
+      showCard();
       renderPokedex();
     }
 
-    function showCard(mode) {
-      const idx = activeCardIndices[mode];
-      const pack = activePacks[mode];
-      const slot = document.getElementById(`${mode}-card-slot`);
-      const badge = document.getElementById(`${mode}-badge`);
+    function showCard() {
+      const slot = document.getElementById('card-slot');
+      const badge = document.getElementById('card-badge');
 
-      if (idx < pack.length) {
-        badge.textContent = `Card ${idx + 1} / 10`;
+      if (activeCardIndex < activePackCards.length) {
+        badge.textContent = `Card ${activeCardIndex + 1} / 10`;
         slot.style.transform = 'none';
         slot.style.opacity = '1';
-        slot.innerHTML = `<img src="${pack[idx].image}" alt="${pack[idx].name}" />`;
+        slot.innerHTML = `<img src="${activePackCards[activeCardIndex].image}" alt="${activePackCards[activeCardIndex].name}" />`;
       } else {
-        // Finished revealing pack
-        document.getElementById(`${mode}-reveal`).style.display = 'none';
-        document.getElementById(`${mode}-pack-container`).style.display = 'flex';
+        document.getElementById('pack-reveal-area').style.display = 'none';
+        document.getElementById('pack-opening-area').style.display = 'flex';
       }
     }
 
-    function nextCard(mode) {
-      const slot = document.getElementById(`${mode}-card-slot`);
+    function nextCard() {
+      const slot = document.getElementById('card-slot');
       slot.style.transform = 'translateX(100px) rotate(15deg)';
       slot.style.opacity = '0';
 
       setTimeout(() => {
-        activeCardIndices[mode]++;
-        showCard(mode);
+        activeCardIndex++;
+        showCard();
       }, 200);
     }
 
+    function switchPackMode(mode) {
+      currentPackMode = mode;
+      document.getElementById('pack-mode-standard').classList.toggle('active', mode === 'standard');
+      document.getElementById('pack-mode-unlimited').classList.toggle('active', mode === 'unlimited');
+
+      const btn = document.getElementById('open-pack-btn');
+      const timer = document.getElementById('timer-text');
+
+      if (mode === 'unlimited') {
+        btn.textContent = 'Open Unlimited Pack';
+        btn.disabled = false;
+        timer.style.display = 'none';
+      } else {
+        timer.style.display = 'block';
+        updatePackTimerUI();
+      }
+    }
+
     function updatePackTimerUI() {
+      if (currentPackMode !== 'standard') return;
+
       const now = Date.now();
       const timePassed = now - lastRechargeTime;
 
@@ -601,9 +560,9 @@
         }
       }
 
-      document.getElementById('pack-count').textContent = packsAvailable;
       const btn = document.getElementById('open-pack-btn');
       const timerText = document.getElementById('timer-text');
+      btn.innerHTML = `Open Pack (<span id="pack-count">${packsAvailable}</span>/10)`;
 
       if (packsAvailable >= MAX_PACKS) {
         btn.disabled = false;
@@ -652,7 +611,6 @@
       const slots = document.querySelectorAll('.hotbar-slot');
       if (tabName === 'packs') slots[0].classList.add('active');
       if (tabName === 'pokedex') slots[1].classList.add('active');
-      if (tabName === 'unlimited') slots[2].classList.add('active');
     }
 
     function saveState() {
