@@ -157,7 +157,7 @@
       color: #aaa;
     }
 
-    /* TCG Pocket Style Card Reveal Stage */
+    /* Card Reveal Area */
     .reveal-area {
       position: relative;
       width: 240px;
@@ -181,7 +181,6 @@
       z-index: 10;
     }
 
-    /* 3D Card Flip Container */
     .card-3d {
       width: 100%;
       height: 100%;
@@ -189,10 +188,6 @@
       transform-style: preserve-3d;
       transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
       cursor: pointer;
-    }
-
-    .card-3d.flipped {
-      transform: rotateY(180deg);
     }
 
     .card-face {
@@ -211,17 +206,10 @@
       object-fit: cover;
     }
 
-    .card-back {
-      background-color: #1a1a24;
-      border: 2px solid #3c5aa6;
-    }
-
-    .card-front {
-      transform: rotateY(180deg);
+    .card-front-default {
       border: 1px solid #444;
     }
 
-    /* TCG Pocket Swiping and Reveal FX */
     .reveal-area.slide-out {
       animation: slideNext 0.4s ease forwards;
     }
@@ -300,7 +288,7 @@
       border-radius: 3px;
     }
 
-    /* BINDER STYLES */
+    /* Binder Styling */
     .binder-container {
       width: 100%;
       max-width: 600px;
@@ -390,7 +378,7 @@
       color: #121214;
     }
 
-    /* MODAL FOR CARD SELECTOR */
+    /* Modal */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -473,7 +461,7 @@
       font-weight: bold;
     }
 
-    /* Fixed Hotbar at Bottom */
+    /* Hotbar */
     .hotbar {
       position: fixed;
       bottom: 0;
@@ -540,12 +528,8 @@
       <div class="reveal-area" id="pack-reveal-area">
         <div class="card-counter-badge" id="card-badge">Card 1 / 10</div>
         
-        <!-- TCG Pocket 3D Card Interactive Stack -->
         <div class="card-3d" id="card-3d-element" onclick="handleCardClick()">
-          <div class="card-face card-back">
-            <img src="https://tcg.pokemon.com/assets/img/global/tcg-card-back-2x.png" alt="Card Back" />
-          </div>
-          <div class="card-face card-front" id="card-front-face">
+          <div class="card-face card-front-default" id="card-front-face">
             <img id="card-front-img" src="" alt="Card Front" />
           </div>
         </div>
@@ -600,7 +584,6 @@
   </div>
 
   <script>
-    // Database for 207 Cards
     const rawCardData = [
       [1,"Bulbasaur","Grass","Common"], [2,"Ivysaur","Grass","Uncommon"], [3,"Venusaur ex","Grass","Double Rare"],
       [4,"Charmander","Fire","Common"], [5,"Charmeleon","Fire","Uncommon"], [6,"Charizard ex","Fire","Double Rare"],
@@ -681,15 +664,17 @@
       cards.push({ id: i, name: `Hyper Rare Gold #${i}`, type: "Special", rarity: "Hyper Rare", image: `https://images.pokemontcg.io/sv3pt5/${i}_hires.png` });
     }
 
+    // Filter categories by specific rarity
     const commons = cards.filter(c => c.rarity === "Common");
     const uncommons = cards.filter(c => c.rarity === "Uncommon");
-    const rares = cards.filter(c => c.rarity !== "Common" && c.rarity !== "Uncommon");
+    const holosAndDoubleRares = cards.filter(c => c.rarity === "Holo Rare" || c.rarity === "Double Rare");
+    const illustrationRares = cards.filter(c => c.rarity === "Illustration Rare");
+    const secretRares = cards.filter(c => c.rarity === "Ultra Rare" || c.rarity === "Special Illustration Rare" || c.rarity === "Hyper Rare");
 
     // Game States
     let ownedStandardCards = new Set(JSON.parse(localStorage.getItem('pokemon151_owned_standard') || '[]'));
     let ownedUnlimitedCards = new Set(JSON.parse(localStorage.getItem('pokemon151_owned_unlimited') || '[]'));
     
-    // Binder State (50 pages * 9 slots = 450 total slots)
     let binderSlots = JSON.parse(localStorage.getItem('pokemon151_binder') || '[]');
     if (binderSlots.length < 450) {
       binderSlots = new Array(450).fill(null);
@@ -708,7 +693,6 @@
 
     let activePackCards = [];
     let activeCardIndex = 0;
-    let isFlipped = false;
     let isAnimating = false;
     let startX = 0;
 
@@ -716,16 +700,26 @@
       return arr[Math.floor(Math.random() * arr.length)];
     }
 
+    // BALANCED WEIGHTED PACK GENERATION LOGIC
     function generatePack10() {
       const pack = [];
       for (let i = 0; i < 6; i++) pack.push(getRandom(commons));
       for (let i = 0; i < 3; i++) pack.push(getRandom(uncommons));
       
-      // Last card chance for hit
-      if (Math.random() < 0.35) {
-        pack.push(getRandom(rares));
-      } else {
+      // Slot 10 Weighted Rates:
+      // ~65% Common/Uncommon (No Hit)
+      // ~25% Holo / Double Rare
+      // ~7% Illustration Rare (IR)
+      // ~3% Secret Rare / SIR / Gold
+      const roll = Math.random() * 100;
+      if (roll < 65) {
         pack.push(getRandom(uncommons));
+      } else if (roll < 90) {
+        pack.push(getRandom(holosAndDoubleRares));
+      } else if (roll < 97) {
+        pack.push(getRandom(illustrationRares));
+      } else {
+        pack.push(getRandom(secretRares));
       }
       return pack;
     }
@@ -778,52 +772,37 @@
     }
 
     function setupCardReveal() {
-      isFlipped = false;
-      const card3D = document.getElementById('card-3d-element');
       const badge = document.getElementById('card-badge');
       const frontImg = document.getElementById('card-front-img');
 
-      card3D.classList.remove('flipped');
       badge.textContent = `Card ${activeCardIndex + 1} / 10`;
-
-      // Set front image ready behind card back
       frontImg.src = activePackCards[activeCardIndex].image;
+
+      const currentCard = activePackCards[activeCardIndex];
+      if (currentCard.rarity !== 'Common' && currentCard.rarity !== 'Uncommon') {
+        triggerRareBurst();
+      }
     }
 
     function handleCardClick() {
       if (isAnimating) return;
 
-      const card3D = document.getElementById('card-3d-element');
       const container = document.getElementById('pack-reveal-area');
+      isAnimating = true;
+      container.classList.add('slide-out');
 
-      if (!isFlipped) {
-        // TCG Pocket Flip Animation
-        isFlipped = true;
-        card3D.classList.add('flipped');
+      setTimeout(() => {
+        container.classList.remove('slide-out');
+        activeCardIndex++;
 
-        // Check if rare hit for burst effect
-        const currentCard = activePackCards[activeCardIndex];
-        if (currentCard.rarity !== 'Common' && currentCard.rarity !== 'Uncommon') {
-          triggerRareBurst();
+        if (activeCardIndex < activePackCards.length) {
+          setupCardReveal();
+        } else {
+          document.getElementById('pack-reveal-area').style.display = 'none';
+          document.getElementById('pack-opening-area').style.display = 'flex';
         }
-      } else {
-        // TCG Pocket Swipe to Next Card Animation
-        isAnimating = true;
-        container.classList.add('slide-out');
-
-        setTimeout(() => {
-          container.classList.remove('slide-out');
-          activeCardIndex++;
-
-          if (activeCardIndex < activePackCards.length) {
-            setupCardReveal();
-          } else {
-            document.getElementById('pack-reveal-area').style.display = 'none';
-            document.getElementById('pack-opening-area').style.display = 'flex';
-          }
-          isAnimating = false;
-        }, 400);
-      }
+        isAnimating = false;
+      }, 400);
     }
 
     function triggerRareBurst() {
@@ -909,7 +888,6 @@
       });
     }
 
-    // BINDER LOGIC
     function renderBinder() {
       const grid = document.getElementById('binder-grid');
       grid.innerHTML = '';
@@ -946,10 +924,7 @@
       const modalGrid = document.getElementById('modal-card-grid');
       modalGrid.innerHTML = '';
 
-      // Combine owned cards across modes
       const allOwnedIds = Array.from(new Set([...ownedStandardCards, ...ownedUnlimitedCards]));
-
-      // CRITICAL: Sort available cards in strictly Set Number Order (#001 to #207)
       allOwnedIds.sort((a, b) => a - b);
 
       if (allOwnedIds.length === 0) {
@@ -1019,7 +994,6 @@
       localStorage.setItem('pokemon151_last_time', lastRechargeTime.toString());
     }
 
-    // Init
     renderPokedex();
     updatePackTimerUI();
     setInterval(updatePackTimerUI, 1000);
