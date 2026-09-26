@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokémon 151 Pack Opener</title>
+  <title>Pokémon 151 Pack Opener & Binder</title>
   <style>
     * {
       box-sizing: border-box;
@@ -89,8 +89,8 @@
     }
 
     .pack-wrapper-art {
-      width: 220px;
-      height: 380px;
+      width: 230px;
+      height: 400px;
       border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.8);
       position: relative;
@@ -98,6 +98,7 @@
       cursor: pointer;
       user-select: none;
       border: 2px solid #333;
+      background-color: #000;
     }
 
     .pack-wrapper-art img {
@@ -113,8 +114,8 @@
       left: 0;
       width: 100%;
       height: 35px;
-      background: rgba(255, 255, 255, 0.15);
-      border-bottom: 2px dashed rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.2);
+      border-bottom: 2px dashed rgba(255, 255, 255, 0.6);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -245,6 +246,166 @@
       border-radius: 3px;
     }
 
+    /* BINDER STYLES */
+    .binder-container {
+      width: 100%;
+      max-width: 600px;
+      background: #0d0d0f;
+      border: 12px solid #1a1a1d;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .binder-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    .binder-page-title {
+      font-weight: bold;
+      color: #ffcb05;
+    }
+
+    .binder-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      background: #151518;
+      padding: 15px;
+      border-radius: 10px;
+      border: 2px solid #222;
+    }
+
+    .binder-slot {
+      aspect-ratio: 2.5 / 3.5;
+      background-color: #0b0b0d;
+      border: 2px dashed #333;
+      border-radius: 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .binder-slot:hover {
+      border-color: #ffcb05;
+    }
+
+    .binder-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .binder-slot-empty-text {
+      font-size: 0.75rem;
+      color: #444;
+      font-weight: bold;
+    }
+
+    .binder-nav {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+      align-items: center;
+    }
+
+    .binder-btn {
+      background-color: #2a2a2e;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 6px 16px;
+      border-radius: 15px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .binder-btn:hover {
+      background-color: #ffcb05;
+      color: #121214;
+    }
+
+    /* MODAL FOR CARD SELECTOR */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+    }
+
+    .modal-content {
+      background: #1f1f23;
+      border-radius: 12px;
+      padding: 20px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      border: 2px solid #333;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 10px;
+      overflow-y: auto;
+      padding-right: 5px;
+      max-height: 60vh;
+    }
+
+    .modal-card {
+      aspect-ratio: 2.5 / 3.5;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      overflow: hidden;
+    }
+
+    .modal-card:hover {
+      border-color: #ffcb05;
+    }
+
+    .modal-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .close-btn {
+      background: #ff4d4d;
+      color: #fff;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
     /* Fixed Hotbar at Bottom */
     .hotbar {
       position: fixed;
@@ -303,7 +464,8 @@
       <div class="pack-container" id="pack-opening-area">
         <div class="pack-wrapper-art" id="active-pack-wrapper" onmousedown="startSwipe(event)" ontouchstart="startSwipe(event)">
           <div class="pack-crimp-overlay">SWIPE TOP TO RIP</div>
-          <img id="pack-img" src="https://tcg.pokemon.com/assets/img/expansions/151/cards/en-us/SV3pt5_EN_151-p.jpg" alt="151 Pack Wrapper" onerror="this.src='https://images.pokemontcg.io/sv3pt5/151_hires.png'" />
+          <!-- Authentic 151 Mew Pack Wrapper Artwork -->
+          <img id="pack-img" src="https://preview.redd.it/151-booster-pack-foil-wrapper-inconsistencies-v0-enq2aup71b3c1.jpg?width=1080&crop=smart&auto=webp&s=c77c6027c7a885cfd34b7309d5ad975e6781122a" alt="151 Pack Wrapper Art" />
         </div>
         <button id="open-pack-btn" class="btn" onclick="startPackOpen()">Open Pack (<span id="pack-count">10</span>/10)</button>
         <div id="timer-text" class="timer-text">Full on packs!</div>
@@ -326,12 +488,40 @@
       </div>
       <div id="pokedex-grid" class="pokedex-grid"></div>
     </div>
+
+    <!-- TAB 3: BINDER -->
+    <div id="tab-binder" class="tab-content">
+      <div class="binder-container">
+        <div class="binder-header">
+          <span class="binder-page-title" id="binder-page-label">Page 1 / 50</span>
+          <span style="font-size: 0.85rem; color: #888;">3x3 Black Binder</span>
+        </div>
+        <div class="binder-grid" id="binder-grid"></div>
+        <div class="binder-nav">
+          <button class="binder-btn" onclick="changeBinderPage(-1)">&laquo; Prev</button>
+          <button class="binder-btn" onclick="changeBinderPage(1)">Next &raquo;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SELECT CARD MODAL -->
+  <div class="modal-overlay" id="card-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Select a Card to Place</h3>
+        <button class="close-btn" onclick="closeModal()">X</button>
+      </div>
+      <div class="modal-grid" id="modal-card-grid"></div>
+      <button class="binder-btn" style="align-self: center;" onclick="removeCardFromSlot()">Remove Current Card</button>
+    </div>
   </div>
 
   <!-- HOTBAR -->
   <div class="hotbar">
     <div class="hotbar-slot active" onclick="switchTab('packs')">Packs</div>
     <div class="hotbar-slot" onclick="switchTab('pokedex')">Pokédex</div>
+    <div class="hotbar-slot" onclick="switchTab('binder')">Binder</div>
   </div>
 
   <script>
@@ -416,12 +606,6 @@
       cards.push({ id: i, name: `Hyper Rare Gold #${i}`, type: "Special", rarity: "Hyper Rare", image: `https://images.pokemontcg.io/sv3pt5/${i}_hires.png` });
     }
 
-    // Pack Art URLs
-    const packArtImages = [
-      "https://tcg.pokemon.com/assets/img/expansions/151/cards/en-us/SV3pt5_EN_151-p.jpg",
-      "https://images.pokemontcg.io/sv3pt5/151_hires.png"
-    ];
-
     const commons = cards.filter(c => c.rarity === "Common");
     const uncommons = cards.filter(c => c.rarity === "Uncommon");
 
@@ -429,8 +613,16 @@
     let ownedStandardCards = new Set(JSON.parse(localStorage.getItem('pokemon151_owned_standard') || '[]'));
     let ownedUnlimitedCards = new Set(JSON.parse(localStorage.getItem('pokemon151_owned_unlimited') || '[]'));
     
+    // Binder State (50 pages * 9 slots = 450 total slots)
+    let binderSlots = JSON.parse(localStorage.getItem('pokemon151_binder') || '[]');
+    if (binderSlots.length < 450) {
+      binderSlots = new Array(450).fill(null);
+    }
+
     let currentPackMode = 'standard';
     let currentPokedexView = 'standard';
+    let currentBinderPage = 1;
+    let activeSlotIndex = null;
 
     let packsAvailable = parseInt(localStorage.getItem('pokemon151_packs') ?? '10');
     let lastRechargeTime = parseInt(localStorage.getItem('pokemon151_last_time') ?? Date.now().toString());
@@ -450,7 +642,7 @@
       const pack = [];
       for (let i = 0; i < 6; i++) pack.push(getRandom(commons));
       for (let i = 0; i < 3; i++) pack.push(getRandom(uncommons));
-      pack.push(getRandom(uncommons)); // Slot 10
+      pack.push(getRandom(uncommons));
       return pack;
     }
 
@@ -602,6 +794,87 @@
       });
     }
 
+    // BINDER LOGIC
+    function renderBinder() {
+      const grid = document.getElementById('binder-grid');
+      grid.innerHTML = '';
+      document.getElementById('binder-page-label').textContent = `Page ${currentBinderPage} / 50`;
+
+      const startIndex = (currentBinderPage - 1) * 9;
+      for (let i = 0; i < 9; i++) {
+        const slotIdx = startIndex + i;
+        const cardId = binderSlots[slotIdx];
+
+        const slotEl = document.createElement('div');
+        slotEl.className = 'binder-slot';
+        slotEl.onclick = () => openCardSelectModal(slotIdx);
+
+        if (cardId) {
+          const cardObj = cards.find(c => c.id === cardId);
+          slotEl.innerHTML = `<img src="${cardObj.image}" alt="${cardObj.name}" />`;
+        } else {
+          slotEl.innerHTML = `<span class="binder-slot-empty-text">EMPTY</span>`;
+        }
+        grid.appendChild(slotEl);
+      }
+    }
+
+    function changeBinderPage(delta) {
+      currentBinderPage += delta;
+      if (currentBinderPage < 1) currentBinderPage = 1;
+      if (currentBinderPage > 50) currentBinderPage = 50;
+      renderBinder();
+    }
+
+    function openCardSelectModal(slotIdx) {
+      activeSlotIndex = slotIdx;
+      const modalGrid = document.getElementById('modal-card-grid');
+      modalGrid.innerHTML = '';
+
+      // Combine owned cards across modes
+      const allOwnedIds = new Set([...ownedStandardCards, ...ownedUnlimitedCards]);
+
+      if (allOwnedIds.size === 0) {
+        modalGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #888;">You don't own any cards yet! Open packs first.</div>`;
+      } else {
+        allOwnedIds.forEach(id => {
+          const cardObj = cards.find(c => c.id === id);
+          if (cardObj) {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'modal-card';
+            cardEl.innerHTML = `<img src="${cardObj.image}" alt="${cardObj.name}" />`;
+            cardEl.onclick = () => selectCardForSlot(cardObj.id);
+            modalGrid.appendChild(cardEl);
+          }
+        });
+      }
+
+      document.getElementById('card-modal').style.display = 'flex';
+    }
+
+    function selectCardForSlot(cardId) {
+      if (activeSlotIndex !== null) {
+        binderSlots[activeSlotIndex] = cardId;
+        saveState();
+        renderBinder();
+      }
+      closeModal();
+    }
+
+    function removeCardFromSlot() {
+      if (activeSlotIndex !== null) {
+        binderSlots[activeSlotIndex] = null;
+        saveState();
+        renderBinder();
+      }
+      closeModal();
+    }
+
+    function closeModal() {
+      document.getElementById('card-modal').style.display = 'none';
+      activeSlotIndex = null;
+    }
+
     function switchTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.hotbar-slot').forEach(el => el.classList.remove('active'));
@@ -611,11 +884,16 @@
       const slots = document.querySelectorAll('.hotbar-slot');
       if (tabName === 'packs') slots[0].classList.add('active');
       if (tabName === 'pokedex') slots[1].classList.add('active');
+      if (tabName === 'binder') {
+        slots[2].classList.add('active');
+        renderBinder();
+      }
     }
 
     function saveState() {
       localStorage.setItem('pokemon151_owned_standard', JSON.stringify([...ownedStandardCards]));
       localStorage.setItem('pokemon151_owned_unlimited', JSON.stringify([...ownedUnlimitedCards]));
+      localStorage.setItem('pokemon151_binder', JSON.stringify(binderSlots));
       localStorage.setItem('pokemon151_packs', packsAvailable.toString());
       localStorage.setItem('pokemon151_last_time', lastRechargeTime.toString());
     }
