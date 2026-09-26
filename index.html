@@ -57,7 +57,7 @@
       display: flex;
     }
 
-    /* Pack Wrapper Art */
+    /* Foil Pack Wrapper Graphics */
     .pack-container {
       margin: 15px 0;
       display: flex;
@@ -65,18 +65,78 @@
       align-items: center;
     }
 
-    .pack-wrapper-img {
-      width: 210px;
-      height: auto;
-      border-radius: 10px;
+    .pack-wrapper {
+      width: 220px;
+      height: 350px;
+      background: linear-gradient(135deg, #2b32b2 0%, #1488cc 50%, #2b32b2 100%);
+      border-radius: 12px;
+      border: 3px solid #e0c068;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.8);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      user-select: none;
     }
 
-    .pack-wrapper-img:hover {
-      transform: scale(1.04);
-      box-shadow: 0 12px 25px rgba(255, 203, 5, 0.4);
+    .pack-crimp-top {
+      width: 100%;
+      height: 35px;
+      background: repeating-linear-gradient(90deg, #b8860b, #b8860b 4px, #ffd700 4px, #ffd700 8px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #000;
+      cursor: ew-resize;
+    }
+
+    .pack-crimp-bottom {
+      width: 100%;
+      height: 25px;
+      background: repeating-linear-gradient(90deg, #b8860b, #b8860b 4px, #ffd700 4px, #ffd700 8px);
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
+    }
+
+    .pack-art {
+      text-align: center;
+      padding: 10px;
+    }
+
+    .pack-art .title {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 8px #000, 2px 2px #3c5aa6;
+    }
+
+    .pack-art .sub {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #ffcb05;
+      text-shadow: 2px 2px #000;
+    }
+
+    .swipe-instruction {
+      font-size: 0.8rem;
+      color: #fff;
+      background: rgba(0,0,0,0.6);
+      padding: 4px 8px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
     }
 
     .btn {
@@ -108,6 +168,46 @@
       color: #aaa;
     }
 
+    /* Interactive Card Reveal Stack */
+    .reveal-area {
+      position: relative;
+      width: 220px;
+      height: 310px;
+      margin-top: 20px;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card-stack {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+      cursor: pointer;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      background-color: #2a2a2e;
+      overflow: hidden;
+    }
+
+    .card-stack img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-counter-badge {
+      position: absolute;
+      top: -25px;
+      background: #ffcb05;
+      color: #121214;
+      font-weight: bold;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+
     /* Sub-tabs for Pokédex */
     .pokedex-tabs {
       display: flex;
@@ -130,32 +230,6 @@
       background-color: #ffcb05;
       color: #121214;
       border-color: #ffcb05;
-    }
-
-    /* Cards Reveal Area */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 15px;
-      width: 100%;
-      margin-top: 20px;
-    }
-
-    .card-img-container {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 2.5 / 3.5;
-      border-radius: 8px;
-      overflow: hidden;
-      background-color: #2a2a2e;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    }
-
-    .card-img-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
     }
 
     /* Pokédex Styling */
@@ -260,12 +334,24 @@
     <!-- TAB 1: PACKS -->
     <div id="tab-packs" class="tab-content active">
       <h2>Packs Mode</h2>
-      <div class="pack-container">
-        <img class="pack-wrapper-img" src="https://images.pokemontcg.io/sv3pt5/pack.png" alt="151 Pack Wrapper" onclick="openPack('standard')" onerror="this.src='https://assets.pokemon.com/assets/cms2/img/cards/web/SV3PT5/SV3PT5_EN_151.png'" />
-        <button id="open-pack-btn" class="btn" onclick="openPack('standard')">Open Pack (<span id="pack-count">10</span>/10)</button>
+      <div class="pack-container" id="standard-pack-container">
+        <div class="pack-wrapper" id="standard-pack" onmousedown="startSwipe(event, 'standard')" ontouchstart="startSwipe(event, 'standard')">
+          <div class="pack-crimp-top" id="standard-crimp">RIP TOP HERE</div>
+          <div class="pack-art">
+            <div class="title">SCARLET & VIOLET</div>
+            <div class="sub">151</div>
+          </div>
+          <div class="swipe-instruction">Swipe top to open!</div>
+          <div class="pack-crimp-bottom"></div>
+        </div>
+        <button id="open-pack-btn" class="btn" onclick="startPackOpen('standard')">Ready Pack (<span id="pack-count">10</span>/10)</button>
         <div id="timer-text" class="timer-text">Full on packs!</div>
       </div>
-      <div id="standard-cards" class="cards-grid"></div>
+      
+      <div class="reveal-area" id="standard-reveal">
+        <div class="card-counter-badge" id="standard-badge">Card 1 / 10</div>
+        <div id="standard-card-slot" class="card-stack" onclick="nextCard('standard')"></div>
+      </div>
     </div>
 
     <!-- TAB 2: POKEDEX -->
@@ -283,11 +369,23 @@
     <!-- TAB 3: UNLIMITED -->
     <div id="tab-unlimited" class="tab-content">
       <h2>Unlimited Mode</h2>
-      <div class="pack-container">
-        <img class="pack-wrapper-img" src="https://images.pokemontcg.io/sv3pt5/pack.png" alt="151 Pack Wrapper" onclick="openPack('unlimited')" onerror="this.src='https://assets.pokemon.com/assets/cms2/img/cards/web/SV3PT5/SV3PT5_EN_151.png'" />
-        <button class="btn" onclick="openPack('unlimited')">Open Unlimited Pack</button>
+      <div class="pack-container" id="unlimited-pack-container">
+        <div class="pack-wrapper" id="unlimited-pack" onmousedown="startSwipe(event, 'unlimited')" ontouchstart="startSwipe(event, 'unlimited')">
+          <div class="pack-crimp-top" id="unlimited-crimp">RIP TOP HERE</div>
+          <div class="pack-art">
+            <div class="title">SCARLET & VIOLET</div>
+            <div class="sub">151</div>
+          </div>
+          <div class="swipe-instruction">Swipe top to open!</div>
+          <div class="pack-crimp-bottom"></div>
+        </div>
+        <button class="btn" onclick="startPackOpen('unlimited')">Ready Unlimited Pack</button>
       </div>
-      <div id="unlimited-cards" class="cards-grid"></div>
+
+      <div class="reveal-area" id="unlimited-reveal">
+        <div class="card-counter-badge" id="unlimited-badge">Card 1 / 10</div>
+        <div id="unlimited-card-slot" class="card-stack" onclick="nextCard('unlimited')"></div>
+      </div>
     </div>
   </div>
 
@@ -383,12 +481,6 @@
     // Categories
     const commons = cards.filter(c => c.rarity === "Common");
     const uncommons = cards.filter(c => c.rarity === "Uncommon");
-    const holoRares = cards.filter(c => c.rarity === "Holo Rare");
-    const doubleRares = cards.filter(c => c.rarity === "Double Rare");
-    const ultraRares = cards.filter(c => c.rarity === "Ultra Rare");
-    const illustrationRares = cards.filter(c => c.rarity === "Illustration Rare");
-    const sirRares = cards.filter(c => c.rarity === "Special Illustration Rare");
-    const hyperRares = cards.filter(c => c.rarity === "Hyper Rare");
 
     // Game States
     let ownedStandardCards = new Set(JSON.parse(localStorage.getItem('pokemon151_owned_standard') || '[]'));
@@ -401,91 +493,99 @@
     const MAX_PACKS = 10;
     const RECHARGE_INTERVAL = 3600000; // 1 hour
 
+    // Active pack state
+    let activePacks = { standard: [], unlimited: [] };
+    let activeCardIndices = { standard: 0, unlimited: 0 };
+    let startX = 0;
+
     function getRandom(arr) {
       return arr[Math.floor(Math.random() * arr.length)];
     }
 
-    function generatePack() {
+    function generatePack10() {
       const pack = [];
-      // Slots 1-6: Commons
       for (let i = 0; i < 6; i++) pack.push(getRandom(commons));
-      // Slots 7-9: Uncommons
       for (let i = 0; i < 3; i++) pack.push(getRandom(uncommons));
-
-      // Slot 10: Extra Common / Uncommon / Rare
-      pack.push(getRandom([...commons, ...uncommons, ...holoRares]));
-
-      // Slot 11: Hit Slot 1
-      const rand11 = Math.random() * 100;
-      if (rand11 < 86.5) {
-        pack.push(getRandom([...commons, ...uncommons, ...holoRares]));
-      } else if (rand11 < 86.5 + 8.5) {
-        pack.push(getRandom(illustrationRares));
-      } else if (rand11 < 86.5 + 8.5 + 3.1) {
-        pack.push(getRandom(sirRares));
-      } else {
-        pack.push(getRandom(hyperRares));
-      }
-
-      // Slot 12: Rare / Ultra Rare Hit Slot 2
-      const rand12 = Math.random() * 100;
-      if (rand12 < 80) {
-        pack.push(getRandom(holoRares));
-      } else if (rand12 < 80 + 13.3) {
-        pack.push(getRandom(doubleRares));
-      } else {
-        pack.push(getRandom(ultraRares));
-      }
-
-      // Slot 13: Basic Energy
-      pack.push({ id: 0, name: "Basic Energy", type: "Energy", rarity: "Common", image: "https://images.pokemontcg.io/sv3pt5/165_hires.png" });
-
-      // Slot 14: Code Card
-      pack.push({ id: 0, name: "Code Card", type: "Code", rarity: "Common", image: "https://images.pokemontcg.io/sv3pt5/164_hires.png" });
-
+      pack.push(getRandom(uncommons)); // Slot 10
       return pack;
     }
 
-    function openPack(mode) {
+    function startSwipe(e, mode) {
+      startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+      const handleMove = (eMove) => {
+        const currentX = eMove.type.includes('touch') ? eMove.touches[0].clientX : eMove.clientX;
+        if (Math.abs(currentX - startX) > 50) {
+          document.removeEventListener('mousemove', handleMove);
+          document.removeEventListener('touchmove', handleMove);
+          executeOpenPack(mode);
+        }
+      };
+      document.addEventListener('mousemove', handleMove);
+      document.addEventListener('touchmove', handleMove);
+      document.addEventListener('mouseup', () => document.removeEventListener('mousemove', handleMove), { once: true });
+      document.addEventListener('touchend', () => document.removeEventListener('touchmove', handleMove), { once: true });
+    }
+
+    function startPackOpen(mode) {
+      executeOpenPack(mode);
+    }
+
+    function executeOpenPack(mode) {
       if (mode === 'standard') {
         if (packsAvailable <= 0) return;
         packsAvailable--;
-        if (packsAvailable === MAX_PACKS - 1) {
-          lastRechargeTime = Date.now();
-        }
+        if (packsAvailable === MAX_PACKS - 1) lastRechargeTime = Date.now();
         saveState();
         updatePackTimerUI();
       }
 
-      const pack = generatePack();
+      const pack = generatePack10();
+      activePacks[mode] = pack;
+      activeCardIndices[mode] = 0;
 
-      // Add to corresponding Pokédex
       pack.forEach(card => {
         if (card.id > 0) {
-          if (mode === 'standard') {
-            ownedStandardCards.add(card.id);
-          } else {
-            ownedUnlimitedCards.add(card.id);
-          }
+          if (mode === 'standard') ownedStandardCards.add(card.id);
+          else ownedUnlimitedCards.add(card.id);
         }
       });
       saveState();
 
-      // Render Revealed Cards
-      const containerId = mode === 'standard' ? 'standard-cards' : 'unlimited-cards';
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
+      document.getElementById(`${mode}-pack-container`).style.display = 'none';
+      const revealArea = document.getElementById(`${mode}-reveal`);
+      revealArea.style.display = 'flex';
 
-      pack.forEach(card => {
-        const cardEl = document.createElement('div');
-        cardEl.className = 'card-img-container';
-        cardEl.innerHTML = `
-          <img src="${card.image}" alt="${card.name}" loading="lazy" />
-        `;
-        container.appendChild(cardEl);
-      });
-
+      showCard(mode);
       renderPokedex();
+    }
+
+    function showCard(mode) {
+      const idx = activeCardIndices[mode];
+      const pack = activePacks[mode];
+      const slot = document.getElementById(`${mode}-card-slot`);
+      const badge = document.getElementById(`${mode}-badge`);
+
+      if (idx < pack.length) {
+        badge.textContent = `Card ${idx + 1} / 10`;
+        slot.style.transform = 'none';
+        slot.style.opacity = '1';
+        slot.innerHTML = `<img src="${pack[idx].image}" alt="${pack[idx].name}" />`;
+      } else {
+        // Finished revealing pack
+        document.getElementById(`${mode}-reveal`).style.display = 'none';
+        document.getElementById(`${mode}-pack-container`).style.display = 'flex';
+      }
+    }
+
+    function nextCard(mode) {
+      const slot = document.getElementById(`${mode}-card-slot`);
+      slot.style.transform = 'translateX(100px) rotate(15deg)';
+      slot.style.opacity = '0';
+
+      setTimeout(() => {
+        activeCardIndices[mode]++;
+        showCard(mode);
+      }, 200);
     }
 
     function updatePackTimerUI() {
